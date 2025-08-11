@@ -9,14 +9,12 @@ use std::{
 };
 
 use bevy::{
+    asset::RenderAssetUsages,
     asset::load_internal_binary_asset,
     image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor},
+    mesh::{Indices, MeshVertexAttribute},
     prelude::*,
-    render::{
-        mesh::{Indices, MeshVertexAttribute},
-        render_asset::RenderAssetUsages,
-        render_resource::{PrimitiveTopology, VertexFormat},
-    },
+    render::render_resource::{PrimitiveTopology, VertexFormat},
     sprite::Material2dPlugin,
 };
 use materials::{

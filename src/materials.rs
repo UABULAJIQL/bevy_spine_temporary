@@ -7,15 +7,14 @@ use std::marker::PhantomData;
 use bevy::{
     asset::{Asset, uuid_handle},
     ecs::system::{StaticSystemParam, SystemParam},
+    mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef},
     prelude::*,
     reflect::TypePath,
-    render::{
-        mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef},
-        render_resource::{
-            AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState,
-            RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError, VertexFormat,
-        },
+    render::render_resource::{
+        AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState,
+        RenderPipelineDescriptor, SpecializedMeshPipelineError, VertexFormat,
     },
+    shader::ShaderRef,
     sprite::{AlphaMode2d, Material2d, Material2dKey},
 };
 use rusty_spine::BlendMode;

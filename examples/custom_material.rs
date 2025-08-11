@@ -1,13 +1,12 @@
 use bevy::{
     ecs::system::{StaticSystemParam, SystemParam},
+    mesh::MeshVertexBufferLayoutRef,
     prelude::*,
     reflect::TypePath,
-    render::{
-        mesh::MeshVertexBufferLayoutRef,
-        render_resource::{
-            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
-        },
+    render::render_resource::{
+        AsBindGroup, RenderPipelineDescriptor, SpecializedMeshPipelineError,
     },
+    shader::ShaderRef,
     sprite::{AlphaMode2d, Material2d, Material2dKey, Material2dPlugin},
 };
 use bevy_spine::{
