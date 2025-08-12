@@ -29,7 +29,9 @@ fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
-            SpinePlugin,
+            SpinePlugin {
+                default_materials: false,
+            },
             SpineMaterialPlugin::<Spine3DMaterial>::default(),
         ))
         .add_systems(Startup, setup)

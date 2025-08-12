@@ -91,80 +91,93 @@ pub enum SpineSet {
 /// # fn doc() {
 /// App::new()
 ///     .add_plugins(DefaultPlugins)
-///     .add_plugins(SpinePlugin)
+///     .add_plugins(SpinePlugin::default())
 ///     // ...
 ///     .run();
 /// # }
 /// ```
-pub struct SpinePlugin;
+pub struct SpinePlugin {
+    pub default_materials: bool,
+}
+
+impl Default for SpinePlugin {
+    fn default() -> Self {
+        Self {
+            default_materials: true,
+        }
+    }
+}
 
 impl Plugin for SpinePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
-            Material2dPlugin::<SpineNormalMaterial>::default(),
-            Material2dPlugin::<SpineAdditiveMaterial>::default(),
-            Material2dPlugin::<SpineMultiplyMaterial>::default(),
-            Material2dPlugin::<SpineScreenMaterial>::default(),
-            Material2dPlugin::<SpineNormalPmaMaterial>::default(),
-            Material2dPlugin::<SpineAdditivePmaMaterial>::default(),
-            Material2dPlugin::<SpineMultiplyPmaMaterial>::default(),
-            Material2dPlugin::<SpineScreenPmaMaterial>::default(),
-        ))
-        .add_plugins((
-            SpineMaterialPlugin::<SpineNormalMaterial>::default(),
-            SpineMaterialPlugin::<SpineAdditiveMaterial>::default(),
-            SpineMaterialPlugin::<SpineMultiplyMaterial>::default(),
-            SpineMaterialPlugin::<SpineScreenMaterial>::default(),
-            SpineMaterialPlugin::<SpineNormalPmaMaterial>::default(),
-            SpineMaterialPlugin::<SpineAdditivePmaMaterial>::default(),
-            SpineMaterialPlugin::<SpineMultiplyPmaMaterial>::default(),
-            SpineMaterialPlugin::<SpineScreenPmaMaterial>::default(),
-        ))
-        .add_plugins(SpineSyncPlugin::first())
-        .init_resource::<SpineEventQueue>()
-        .insert_resource(SpineTextures::init())
-        .insert_resource(SpineReadyEvents::default())
-        .add_event::<SpineTextureCreateEvent>()
-        .add_event::<SpineTextureDisposeEvent>()
-        .init_asset::<Atlas>()
-        .init_asset::<SkeletonJson>()
-        .init_asset::<SkeletonBinary>()
-        .init_asset::<SkeletonData>()
-        .init_asset_loader::<AtlasLoader>()
-        .init_asset_loader::<SkeletonJsonLoader>()
-        .init_asset_loader::<SkeletonBinaryLoader>()
-        .add_event::<SpineReadyEvent>()
-        .add_event::<SpineEvent>()
-        .add_systems(
-            Update,
-            (
-                spine_load.in_set(SpineSystem::Load),
-                spine_spawn
-                    .in_set(SpineSystem::Spawn)
-                    .after(SpineSystem::Load),
-                spine_ready
-                    .in_set(SpineSystem::Ready)
-                    .after(SpineSystem::Spawn)
-                    .before(SpineSet::OnReady),
-                spine_update_animation
-                    .in_set(SpineSystem::UpdateAnimation)
-                    .after(SpineSet::OnReady)
-                    .before(SpineSet::OnEvent),
-                spine_update_meshes
-                    .in_set(SpineSystem::UpdateMeshes)
-                    .in_set(SpineSet::OnUpdateMesh)
-                    .after(SpineSystem::UpdateAnimation)
-                    .after(SpineSet::OnEvent),
-                ApplyDeferred
-                    .in_set(SpineSystem::SpawnFlush)
-                    .after(SpineSystem::Spawn)
-                    .before(SpineSystem::Ready),
-            ),
-        )
-        .add_systems(
-            PostUpdate,
-            adjust_spine_textures.in_set(SpineSystem::AdjustSpineTextures),
-        );
+        if self.default_materials {
+            app.add_plugins((
+                Material2dPlugin::<SpineNormalMaterial>::default(),
+                Material2dPlugin::<SpineAdditiveMaterial>::default(),
+                Material2dPlugin::<SpineMultiplyMaterial>::default(),
+                Material2dPlugin::<SpineScreenMaterial>::default(),
+                Material2dPlugin::<SpineNormalPmaMaterial>::default(),
+                Material2dPlugin::<SpineAdditivePmaMaterial>::default(),
+                Material2dPlugin::<SpineMultiplyPmaMaterial>::default(),
+                Material2dPlugin::<SpineScreenPmaMaterial>::default(),
+            ))
+            .add_plugins((
+                SpineMaterialPlugin::<SpineNormalMaterial>::default(),
+                SpineMaterialPlugin::<SpineAdditiveMaterial>::default(),
+                SpineMaterialPlugin::<SpineMultiplyMaterial>::default(),
+                SpineMaterialPlugin::<SpineScreenMaterial>::default(),
+                SpineMaterialPlugin::<SpineNormalPmaMaterial>::default(),
+                SpineMaterialPlugin::<SpineAdditivePmaMaterial>::default(),
+                SpineMaterialPlugin::<SpineMultiplyPmaMaterial>::default(),
+                SpineMaterialPlugin::<SpineScreenPmaMaterial>::default(),
+            ));
+        }
+
+        app.add_plugins(SpineSyncPlugin::first())
+            .init_resource::<SpineEventQueue>()
+            .insert_resource(SpineTextures::init())
+            .insert_resource(SpineReadyEvents::default())
+            .add_event::<SpineTextureCreateEvent>()
+            .add_event::<SpineTextureDisposeEvent>()
+            .init_asset::<Atlas>()
+            .init_asset::<SkeletonJson>()
+            .init_asset::<SkeletonBinary>()
+            .init_asset::<SkeletonData>()
+            .init_asset_loader::<AtlasLoader>()
+            .init_asset_loader::<SkeletonJsonLoader>()
+            .init_asset_loader::<SkeletonBinaryLoader>()
+            .add_event::<SpineReadyEvent>()
+            .add_event::<SpineEvent>()
+            .add_systems(
+                Update,
+                (
+                    spine_load.in_set(SpineSystem::Load),
+                    spine_spawn
+                        .in_set(SpineSystem::Spawn)
+                        .after(SpineSystem::Load),
+                    spine_ready
+                        .in_set(SpineSystem::Ready)
+                        .after(SpineSystem::Spawn)
+                        .before(SpineSet::OnReady),
+                    spine_update_animation
+                        .in_set(SpineSystem::UpdateAnimation)
+                        .after(SpineSet::OnReady)
+                        .before(SpineSet::OnEvent),
+                    spine_update_meshes
+                        .in_set(SpineSystem::UpdateMeshes)
+                        .in_set(SpineSet::OnUpdateMesh)
+                        .after(SpineSystem::UpdateAnimation)
+                        .after(SpineSet::OnEvent),
+                    ApplyDeferred
+                        .in_set(SpineSystem::SpawnFlush)
+                        .after(SpineSystem::Spawn)
+                        .before(SpineSystem::Ready),
+                ),
+            )
+            .add_systems(
+                PostUpdate,
+                adjust_spine_textures.in_set(SpineSystem::AdjustSpineTextures),
+            );
 
         load_internal_binary_asset!(
             app,

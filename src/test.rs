@@ -25,7 +25,7 @@ pub fn test_app() -> App {
             })
             .build()
             .disable::<WinitPlugin>(),
-        SpinePlugin,
+        SpinePlugin::default(),
     ));
     app
 }

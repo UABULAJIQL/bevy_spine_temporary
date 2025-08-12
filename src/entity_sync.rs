@@ -54,7 +54,7 @@ pub enum SpineSynchronizerSet<T: SpineSynchronizer> {
 ///     App::new()
 ///         .add_plugins((
 ///             DefaultPlugins,
-///             SpinePlugin,
+///             SpinePlugin::default(),
 ///             MySpineSyncPlugin::default(),
 ///         ))
 ///         .add_systems(Update, (
@@ -236,7 +236,7 @@ pub type SpineSyncSystem = SpineSynchronizerSystem<SpineSync>;
 /// # fn doc() {
 /// fn main() {
 ///     App::new()
-///         .add_plugins((DefaultPlugins, SpinePlugin))
+///         .add_plugins((DefaultPlugins, SpinePlugin::default()))
 ///         .add_systems(Update, (
 ///             spawn,
 ///             before_sync.in_set(SpineSyncSet::BeforeSync),
