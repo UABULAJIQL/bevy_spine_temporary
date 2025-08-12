@@ -4,19 +4,18 @@
 
 use std::marker::PhantomData;
 
-use bevy::{
-    asset::{Asset, uuid_handle},
-    ecs::system::{StaticSystemParam, SystemParam},
-    mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef},
-    prelude::*,
-    reflect::TypePath,
-    render::render_resource::{
-        AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState,
-        RenderPipelineDescriptor, SpecializedMeshPipelineError, VertexFormat,
-    },
-    shader::ShaderRef,
-    sprite::{AlphaMode2d, Material2d, Material2dKey},
+use bevy::prelude::*;
+
+use bevy::asset::{Asset, uuid_handle};
+use bevy::ecs::system::{StaticSystemParam, SystemParam};
+use bevy::mesh::{MeshVertexAttribute, MeshVertexBufferLayoutRef};
+use bevy::reflect::TypePath;
+use bevy::render::render_resource::{
+    AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState, RenderPipelineDescriptor,
+    SpecializedMeshPipelineError, VertexFormat,
 };
+use bevy::shader::ShaderRef;
+use bevy::sprite::{AlphaMode2d, Material2d, Material2dKey};
 use rusty_spine::BlendMode;
 
 use crate::{SpineMesh, SpineMeshState, SpineSettings, SpineSystem};
@@ -81,7 +80,10 @@ pub struct SpineMaterialInfo {
     pub premultiplied_alpha: bool,
 }
 
-#[allow(clippy::type_complexity, clippy::too_many_arguments)]
+#[allow(
+    clippy::type_complexity,
+    clippy::too_many_arguments
+)]
 fn update_materials<T: SpineMaterial>(
     mut commands: Commands,
     mut materials: ResMut<Assets<T::Material>>,
@@ -89,9 +91,8 @@ fn update_materials<T: SpineMaterial>(
     params: StaticSystemParam<T::Params<'_, '_>>,
 ) {
     for (mesh_entity, spine_mesh, material_handle) in mesh_query.iter() {
-        let SpineMeshState::Renderable { info: data } = spine_mesh.state.clone() else {
-            continue;
-        };
+        let SpineMeshState::Renderable { info: data } = spine_mesh.state.clone() else { continue };
+
         if let Some((material, handle)) =
             material_handle.and_then(|handle| materials.get_mut(handle.clone()).zip(Some(handle)))
         {
@@ -104,12 +105,14 @@ fn update_materials<T: SpineMaterial>(
                 *material = new_material;
             } else {
                 materials.remove(handle.clone());
+
                 if let Ok(mut entity_commands) = commands.get_entity(mesh_entity) {
                     entity_commands.remove::<T::MeshMaterial>();
                 }
             }
         } else if let Some(material) = T::update(None, spine_mesh.spine_entity, data, &params) {
             let handle = materials.add(material);
+
             if let Ok(mut entity_commands) = commands.get_entity(mesh_entity) {
                 entity_commands
                     .insert(<T::MeshMaterial as From<Handle<T::Material>>>::from(handle));
@@ -176,13 +179,16 @@ macro_rules! material {
                     Mesh::ATTRIBUTE_COLOR.at_shader_location(4),
                     DARK_COLOR_ATTRIBUTE.at_shader_location(DARK_COLOR_SHADER_POSITION as u32),
                 ];
+
                 let vertex_buffer_layout = layout.0.get_layout(&vertex_attributes)?;
                 descriptor.vertex.buffers = vec![vertex_buffer_layout];
+
                 if let Some(fragment) = &mut descriptor.fragment {
                     if let Some(target_state) = &mut fragment.targets[0] {
                         target_state.blend = Some($blend_state);
                     }
                 }
+
                 descriptor.primitive.cull_mode = None;
                 Ok(())
             }
@@ -199,10 +205,12 @@ macro_rules! material {
                 renderable_data: SpineMaterialInfo,
                 params: &StaticSystemParam<Self::Params<'_, '_>>,
             ) -> Option<Self> {
-                let spine_settings = params.spine_settings_query.get(entity).copied().unwrap_or(SpineSettings::default());
+                let spine_settings = params.spine_settings_query.get(entity).copied().unwrap_or_default();
+
                 if spine_settings.default_materials && renderable_data.blend_mode == $blend_mode && renderable_data.premultiplied_alpha == $premultiplied_alpha {
-                    let mut material = material.unwrap_or_else(|| Self::default());
+                    let mut material = material.unwrap_or_default();
                     material.image = renderable_data.texture;
+
                     Some(material)
                 } else {
                     None

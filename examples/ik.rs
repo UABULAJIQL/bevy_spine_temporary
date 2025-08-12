@@ -1,8 +1,7 @@
-use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_spine::{
-    SkeletonController, SkeletonData, Spine, SpineBone, SpineBundle, SpinePlugin, SpineReadyEvent,
-    SpineSet, SpineSync, SpineSyncSet,
-};
+use bevy::prelude::*;
+use bevy_spine::prelude::*;
+
+use bevy::window::PrimaryWindow;
 
 #[derive(Component)]
 pub struct Crosshair;
@@ -32,12 +31,11 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
-    let skeleton_handle = skeletons.add(skeleton);
 
     commands.spawn((
         SpineBundle {
             transform: Transform::from_xyz(-200., -200., 0.).with_scale(Vec3::splat(0.5)),
-            skeleton: skeleton_handle.clone().into(),
+            skeleton: skeletons.add(skeleton).into(),
             ..Default::default()
         },
         SpineSync,
@@ -56,10 +54,13 @@ fn on_spawn(
                 animation_state,
                 ..
             }) = spine.as_mut();
+
             skeleton.set_scale(Vec2::splat(1.));
+
             let _ = animation_state.set_animation_by_name(0, "run", true);
             let _ = animation_state.set_animation_by_name(1, "aim", true);
             let _ = animation_state.set_animation_by_name(2, "shoot", true);
+
             if let Some(mut crosshair_entity) = event
                 .bones
                 .get("crosshair")
@@ -80,6 +81,7 @@ fn ik(
     let (camera_entity, camera) = camera_query.into_inner();
     let camera_global_transform = global_transform_query.get(camera_entity).unwrap();
     let window = window_query.into_inner();
+
     let cursor_position = window
         .cursor_position()
         .and_then(|cursor| {
@@ -94,6 +96,7 @@ fn ik(
         let parent_global_transform = global_transform_query
             .get(crosshair_bone.parent.as_ref().unwrap().entity)
             .unwrap();
+
         crosshair_transform.translation = (parent_global_transform.to_matrix().inverse()
             * Vec4::new(cursor_position.x, cursor_position.y, 0., 1.))
         .truncate();

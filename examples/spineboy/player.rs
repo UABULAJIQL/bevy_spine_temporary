@@ -103,7 +103,9 @@ fn player_spine_ready(
                 skeleton,
                 ..
             }) = spine.as_mut();
+
             let _ = animation_state.set_animation_by_name(PLAYER_TRACK_PORTAL, "portal", false);
+
             for (bone, bone_entity) in spine_bone_query.iter_mut() {
                 if let Some(bone) = bone.handle.get(skeleton) {
                     if bone.data().name() == "crosshair" {
@@ -137,25 +139,30 @@ fn player_spine_events(
                         "idle",
                         true,
                     );
+
                     let _ = controller.animation_state.set_animation_by_name(
                         PLAYER_TRACK_AIM,
                         "aim",
                         true,
                     );
+
                     controller
                         .animation_state
                         .set_animation_by_name(PLAYER_TRACK_RUN, "run", true)
                         .unwrap();
+
                     controller
                         .animation_state
                         .track_at_index_mut(PLAYER_TRACK_AIM)
                         .unwrap()
                         .set_alpha(0.);
+
                     controller
                         .animation_state
                         .track_at_index_mut(PLAYER_TRACK_RUN)
                         .unwrap()
                         .set_alpha(0.);
+
                     player.spawned = true;
                 } else if animation == "jump" {
                     controller.animation_state.clear_track(PLAYER_TRACK_JUMP);
@@ -176,9 +183,8 @@ fn player_aim(
 ) {
     let (camera_entity, camera) = camera.into_inner();
     let camera_global_transform = global_transform_query.get(camera_entity).unwrap();
-    let Ok(window) = window_query.single() else {
-        return;
-    };
+    let Ok(window) = window_query.single() else { return };
+
     let cursor_position = window
         .cursor_position()
         .and_then(|cursor| {
@@ -188,6 +194,7 @@ fn player_aim(
         })
         .map(|ray| ray.origin.truncate())
         .unwrap_or(Vec2::ZERO);
+
     for (mut spine, player_entity, crosshair, player) in crosshair_query.iter_mut() {
         if player.spawned {
             if let Ok((crosshair_entity, crosshair_parent)) = bone_query.get(crosshair.bone) {
@@ -198,21 +205,27 @@ fn player_aim(
                 } else {
                     Mat4::IDENTITY
                 };
+
                 let mut scale_x = 1.;
+
                 if let Ok(mut crosshair_transform) = transform_query.get_mut(crosshair_entity) {
                     crosshair_transform.translation =
                         (matrix * cursor_position.extend(0.).extend(1.)).truncate();
+
                     if crosshair_transform.translation.x < 0. {
                         scale_x = -1.;
                     }
                 }
+
                 if let Ok(mut player_transform) = transform_query.get_mut(player_entity) {
                     player_transform.scale.x = (scale_x * player_transform.scale.x).signum() * 0.25;
                 }
+
                 if let Some(mut aim_track) =
                     spine.animation_state.track_at_index_mut(PLAYER_TRACK_AIM)
                 {
                     let alpha = aim_track.alpha() * 2.5;
+
                     aim_track
                         .set_alpha(lerp::Lerp::lerp(alpha, 1., time.delta_secs()).clamp(0., 1.));
                 }
@@ -231,22 +244,27 @@ fn player_shoot(
 ) {
     for (mut shoot, player) in shoot_query.iter_mut() {
         shoot.cooldown = (shoot.cooldown - time.delta_secs()).max(0.);
+
         if mouse_buttons.just_pressed(MouseButton::Left) && player.spawned && shoot.cooldown == 0. {
             let mut scale_x = 1.;
+
             if let Ok((mut spine, spine_transform)) = spine_query.get_mut(shoot.spine) {
                 let _ =
                     spine
                         .animation_state
                         .set_animation_by_name(PLAYER_TRACK_SHOOT, "shoot", false);
+
                 scale_x = spine_transform.scale.x;
             }
             if let Ok(shoot_transform) = global_transform_query.get(shoot.bone) {
                 let (_, rotation, translation) = shoot_transform.to_scale_rotation_translation();
+
                 bullet_spawn_events.write(BulletSpawnEvent {
                     position: translation.truncate(),
                     velocity: (rotation * Vec3::X).truncate() * 1000. * scale_x.signum(),
                 });
             }
+
             shoot.cooldown = 0.25;
         }
     }
@@ -260,19 +278,25 @@ fn player_move(
     for (mut player, mut player_transform, mut player_spine) in player_query.iter_mut() {
         if player.spawned {
             let mut movement = 0.;
+
             if keys.pressed(KeyCode::KeyA) {
                 movement -= 1.;
             }
+
             if keys.pressed(KeyCode::KeyD) {
                 movement += 1.;
             }
+
             player.movement_velocity =
                 (player.movement_velocity + movement * 20. * time.delta_secs()).clamp(-1., 1.);
+
             if movement == 0. {
                 player.movement_velocity *= 0.0001_f32.powf(time.delta_secs());
             }
+
             player_transform.translation.x += player.movement_velocity * time.delta_secs() * 500.;
             player_transform.translation.x = player_transform.translation.x.clamp(-500., 500.);
+
             if let Some(mut track) = player_spine
                 .animation_state
                 .track_at_index_mut(PLAYER_TRACK_RUN)
@@ -288,14 +312,17 @@ fn player_jump(mut player_query: Query<(&mut Spine, &Player)>, keys: Res<ButtonI
         if !player.spawned {
             continue;
         }
+
         let Spine(SkeletonController {
             animation_state, ..
         }) = spine.as_mut();
         if let Some(mut jump_track) = animation_state.track_at_index_mut(PLAYER_TRACK_JUMP) {
             let progress =
                 (jump_track.track_time() / jump_track.animation().duration()).clamp(0., 1.);
+
             let mix_out_threshold = 0.9;
             let mix_in_threshold = 0.05;
+
             if progress > mix_out_threshold {
                 jump_track
                     .set_alpha(1. - (progress - mix_out_threshold) / (1. - mix_out_threshold));
@@ -306,6 +333,7 @@ fn player_jump(mut player_query: Query<(&mut Spine, &Player)>, keys: Res<ButtonI
             }
         } else if keys.just_pressed(KeyCode::Space) {
             let _ = animation_state.set_animation_by_name(PLAYER_TRACK_JUMP, "jump", false);
+
             animation_state
                 .track_at_index_mut(PLAYER_TRACK_JUMP)
                 .unwrap()

@@ -1,10 +1,9 @@
 use std::{path::Path, sync::Arc};
 
-use bevy::{
-    asset::{AssetLoader, LoadContext, io::Reader},
-    prelude::*,
-    reflect::TypePath,
-};
+use bevy::prelude::*;
+
+use bevy::asset::{AssetLoader, LoadContext, io::Reader};
+use bevy::reflect::TypePath;
 use rusty_spine::SpineError;
 use thiserror::Error;
 
@@ -43,10 +42,7 @@ impl AssetLoader for AtlasLoader {
         Ok(Atlas {
             atlas: Arc::new(rusty_spine::Atlas::new(
                 &bytes,
-                load_context
-                    .path()
-                    .parent()
-                    .unwrap_or_else(|| Path::new("")),
+                load_context.path().parent().unwrap_or(Path::new("")),
             )?),
         })
     }

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
 use bevy::prelude::*;
+
+use bevy::platform::collections::HashMap;
 use rusty_spine::AnimationStateData;
 
 /// Crossfade data to apply to [`rusty_spine::AnimationStateData`]. Allows automated crossfading
@@ -27,7 +27,6 @@ use rusty_spine::AnimationStateData;
 /// });
 /// # }
 /// ```
-
 #[derive(Component, Default, Debug, Clone)]
 pub struct Crossfades {
     mix_durations: HashMap<(String, String), f32>,

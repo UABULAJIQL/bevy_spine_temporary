@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use bevy_spine::{
-    SkeletonController, SkeletonData, Spine, SpineBundle, SpinePlugin, SpineReadyEvent, SpineSet,
-};
+use bevy_spine::prelude::*;
 
 fn main() {
     App::new()
@@ -22,10 +20,9 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
-    let skeleton_handle = skeletons.add(skeleton);
 
     commands.spawn(SpineBundle {
-        skeleton: skeleton_handle.into(),
+        skeleton: skeletons.add(skeleton).into(),
         transform: Transform::from_xyz(0., -200., 0.),
         ..Default::default()
     });
@@ -42,7 +39,9 @@ fn on_spawn(
                 animation_state,
                 ..
             }) = spine.as_mut();
+
             skeleton.set_scale(Vec2::splat(0.5));
+
             let _ = animation_state.set_animation_by_name(0, "portal", true);
         }
     }

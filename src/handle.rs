@@ -1,5 +1,6 @@
-use crate::SkeletonData;
 use bevy::prelude::*;
+
+use crate::SkeletonData;
 
 #[derive(Default, Component)]
 pub struct SkeletonDataHandle(pub Handle<SkeletonData>);

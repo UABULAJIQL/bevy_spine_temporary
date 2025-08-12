@@ -1,8 +1,5 @@
 use bevy::prelude::*;
-use bevy_spine::{
-    SkeletonController, SkeletonData, Spine, SpineBundle, SpineEvent, SpinePlugin, SpineReadyEvent,
-    SpineSet,
-};
+use bevy_spine::prelude::*;
 
 fn main() {
     App::new()
@@ -30,10 +27,9 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
-    let skeleton_handle = skeletons.add(skeleton);
 
     commands.spawn(SpineBundle {
-        skeleton: skeleton_handle.clone().into(),
+        skeleton: skeletons.add(skeleton).into(),
         transform: Transform::from_xyz(0., -200., 0.).with_scale(Vec3::ONE * 0.5),
         ..Default::default()
     });
@@ -48,6 +44,7 @@ fn on_spawn(
             let Spine(SkeletonController {
                 animation_state, ..
             }) = spine.as_mut();
+
             let _ = animation_state.set_animation_by_name(0, "walk", true);
         }
     }
@@ -73,9 +70,12 @@ fn footstep_update(
 ) {
     for (mut transform, mut text_color, entity) in footstep_query.iter_mut() {
         transform.translation.y += time.delta_secs() * 70.;
+
         let mut alpha = text_color.alpha();
+
         alpha = (alpha - time.delta_secs() * 2.).clamp(0., 1.);
         text_color.set_alpha(alpha);
+
         if alpha == 0. {
             commands.entity(entity).despawn();
         }

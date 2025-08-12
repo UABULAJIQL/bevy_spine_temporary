@@ -9,6 +9,9 @@ readme = "readme.md"
 license-file = "LICENSE"
 exclude = ["assets/*"]
 
+[features]
+debug = []
+
 [dependencies]
 glam = { version = "0.30", features = ["mint"] }
 thiserror = "2"

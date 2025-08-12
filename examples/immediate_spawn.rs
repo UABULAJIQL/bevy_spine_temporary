@@ -1,9 +1,7 @@
 //! Demonstrates how to spawn a [`SpineBundle`] and use it in one frame.
 
 use bevy::{app::AppExit, diagnostic::FrameCount, prelude::*};
-use bevy_spine::{
-    SkeletonData, Spine, SpineBundle, SpinePlugin, SpineReadyEvent, SpineSet, SpineSystem,
-};
+use bevy_spine::prelude::*;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum ExampleSet {
@@ -46,6 +44,7 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
+
     demo_data.skeleton_handle = skeletons.add(skeleton);
 }
 
@@ -63,7 +62,9 @@ fn spawn(
                     transform: Transform::from_xyz(0., -200., 0.).with_scale(Vec3::ONE * 0.5),
                     ..Default::default()
                 });
+
                 demo_data.spawned = true;
+
                 println!("spawned on frame: {}", frame_count.0);
             }
         }
@@ -79,6 +80,7 @@ fn on_spawn(
     for event in spine_ready_event.read() {
         assert!(spine_query.contains(event.entity));
         println!("ready on frame: {}", frame_count.0);
+
         app_exit.write_default();
     }
 }

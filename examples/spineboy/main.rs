@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+
 use bevy_spine::{SkeletonData, SpinePlugin};
 use bullet::BulletPlugin;
 use player::{PlayerPlugin, PlayerSpawnEvent};
@@ -27,9 +28,9 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.skel"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
-    let skeleton_handle = skeletons.add(skeleton);
+
     player_spawn_events.write(PlayerSpawnEvent {
-        skeleton: skeleton_handle,
+        skeleton: skeletons.add(skeleton),
     });
 }
 

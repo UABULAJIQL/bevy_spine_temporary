@@ -1,8 +1,5 @@
 use bevy::prelude::*;
-use bevy_spine::{
-    Crossfades, SkeletonController, SkeletonData, Spine, SpineBundle, SpinePlugin, SpineReadyEvent,
-    SpineSet, SpineSystem,
-};
+use bevy_spine::prelude::*;
 
 fn main() {
     App::new()
@@ -29,19 +26,19 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
-    let skeleton_handle = skeletons.add(skeleton);
 
     let mut crossfades = Crossfades::new();
+
     crossfades.add("idle", "walk", 0.5);
     crossfades.add("walk", "idle", 0.5);
 
     commands.spawn(SpineBundle {
-        skeleton: skeleton_handle.clone().into(),
+        skeleton: skeletons.add(skeleton).into(),
         crossfades,
         transform: Transform::default()
             .with_translation(Vec3::new(0., -200., 0.))
             .with_scale(Vec3::ONE * 0.5),
-        ..Default::default()
+        ..default()
     });
 }
 
@@ -54,6 +51,7 @@ fn on_spawn(
             let Spine(SkeletonController {
                 animation_state, ..
             }) = spine.as_mut();
+
             let _ = animation_state.set_animation_by_name(0, "idle", true);
         }
     }

@@ -1,22 +1,17 @@
-use bevy::{
-    ecs::system::{StaticSystemParam, SystemParam},
-    mesh::MeshVertexBufferLayoutRef,
-    prelude::*,
-    reflect::TypePath,
-    render::render_resource::{
-        AsBindGroup, RenderPipelineDescriptor, SpecializedMeshPipelineError,
-    },
-    shader::ShaderRef,
-    sprite::{AlphaMode2d, Material2d, Material2dKey, Material2dPlugin},
+use bevy::prelude::*;
+use bevy_spine::prelude::*;
+
+use bevy::ecs::system::{StaticSystemParam, SystemParam};
+use bevy::mesh::MeshVertexBufferLayoutRef;
+use bevy::reflect::TypePath;
+use bevy::render::render_resource::{
+    AsBindGroup, RenderPipelineDescriptor, SpecializedMeshPipelineError,
 };
-use bevy_spine::{
-    SkeletonController, SkeletonData, Spine, SpineBundle, SpineDrawer, SpinePlugin,
-    SpineReadyEvent, SpineSet, SpineSettings,
-    materials::{
-        DARK_COLOR_ATTRIBUTE, DARK_COLOR_SHADER_POSITION, SpineMaterial, SpineMaterialInfo,
-        SpineMaterialPlugin,
-    },
-};
+use bevy::shader::ShaderRef;
+use bevy::sprite::{AlphaMode2d, Material2d, Material2dKey, Material2dPlugin};
+use bevy_spine::SpineDrawer;
+use bevy_spine::materials::{DARK_COLOR_ATTRIBUTE, DARK_COLOR_SHADER_POSITION};
+use bevy_spine::materials::{SpineMaterial, SpineMaterialInfo, SpineMaterialPlugin};
 
 fn main() {
     App::new()
@@ -78,6 +73,7 @@ fn on_spawn(
             let Spine(SkeletonController {
                 animation_state, ..
             }) = spine.as_mut();
+
             let _ = animation_state.set_animation_by_name(0, "portal", true);
         }
     }
@@ -120,9 +116,12 @@ impl Material2d for MyMaterial {
             Mesh::ATTRIBUTE_COLOR.at_shader_location(4),
             DARK_COLOR_ATTRIBUTE.at_shader_location(DARK_COLOR_SHADER_POSITION as u32),
         ];
+
         let vertex_buffer_layout = layout.0.get_layout(&vertex_attributes)?;
+
         descriptor.vertex.buffers = vec![vertex_buffer_layout];
         descriptor.primitive.cull_mode = None;
+
         Ok(())
     }
 }
@@ -146,8 +145,10 @@ impl SpineMaterial for MyMaterial {
     ) -> Option<Self> {
         if let Ok(spine) = params.my_spine_query.get(entity) {
             let mut material = material.unwrap_or_default();
+
             material.image = renderable_data.texture;
             material.time = params.time.elapsed_secs();
+
             if let Some(slot) = spine
                 .skeleton
                 .slot_at_index(renderable_data.slot_index.unwrap_or(9999))
@@ -156,6 +157,7 @@ impl SpineMaterial for MyMaterial {
                     material.time = 0.;
                 }
             }
+
             Some(material)
         } else {
             None

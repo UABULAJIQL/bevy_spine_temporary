@@ -1,13 +1,14 @@
+use bevy::prelude::*;
+use bevy_spine::prelude::*;
+
 use bevy::{
     ecs::system::StaticSystemParam,
     input::mouse::MouseMotion,
-    prelude::*,
     window::{CursorGrabMode, CursorOptions, PrimaryWindow},
 };
 use bevy_spine::{
     SpineMeshType,
     materials::{SpineMaterial, SpineMaterialInfo, SpineMaterialPlugin, SpineSettingsQuery},
-    prelude::*,
 };
 
 #[derive(Component)]
@@ -74,16 +75,16 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load("spineboy/export/spineboy.atlas"),
     );
-    let skeleton_handle = skeletons.add(skeleton);
+
     commands.spawn(SpineBundle {
-        skeleton: skeleton_handle.clone().into(),
+        skeleton: skeletons.add(skeleton).into(),
         transform: Transform::from_xyz(0., 0., 0.).with_scale(Vec3::ONE * 0.005),
         settings: SpineSettings {
             default_materials: false,
             mesh_type: SpineMeshType::Mesh3D,
-            ..Default::default()
+            ..default()
         },
-        ..Default::default()
+        ..default()
     });
 }
 
@@ -96,6 +97,7 @@ fn on_spawn(
             let Spine(SkeletonController {
                 animation_state, ..
             }) = spine.as_mut();
+
             let _ = animation_state.set_animation_by_name(0, "portal", true);
         }
     }
@@ -112,22 +114,27 @@ fn controls(
         cursor_options.grab_mode = CursorGrabMode::Locked;
         cursor_options.visible = false;
     }
+
     if keys.just_pressed(KeyCode::Escape) {
         cursor_options.grab_mode = CursorGrabMode::None;
         cursor_options.visible = true;
     }
 
     let mut mouse_movement = Vec2::ZERO;
+
     for mouse_motion_event in mouse_motion_events.read() {
         if cursor_options.grab_mode == CursorGrabMode::Locked {
             mouse_movement += mouse_motion_event.delta;
         }
     }
+
     for (mut orbit, mut orbit_transform) in orbit_query.iter_mut() {
         orbit.angle = (orbit.angle + mouse_movement.x * 0.001).clamp(0.14159, 3.);
         orbit.pitch = (orbit.pitch + mouse_movement.y * 0.001).clamp(0.1, 1.5);
+
         orbit_transform.translation =
             Vec3::new(orbit.angle.cos(), orbit.pitch.tan(), orbit.angle.sin()).normalize() * 7.;
+
         orbit_transform.look_at(Vec3::new(0., 1.5, 0.), Vec3::Y);
     }
 }
@@ -151,6 +158,7 @@ impl SpineMaterial for Spine3DMaterial {
             .get(entity)
             .copied()
             .unwrap_or(SpineSettings::default());
+
         if spine_settings.mesh_type == SpineMeshType::Mesh3D {
             let mut material = material.unwrap_or_else(|| Self::Material {
                 unlit: true,
@@ -161,6 +169,7 @@ impl SpineMaterial for Spine3DMaterial {
                 },
                 ..Self::Material::default()
             });
+
             material.base_color_texture = Some(renderable_data.texture);
             Some(material)
         } else {

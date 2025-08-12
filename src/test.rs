@@ -1,18 +1,16 @@
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-use bevy::{
-    prelude::*,
-    render::{RenderPlugin, settings::WgpuSettings},
-    winit::WinitPlugin,
-};
+use bevy::prelude::*;
 
-use crate::{SpineSet, prelude::*};
+use bevy::render::{RenderPlugin, settings::WgpuSettings};
+use bevy::winit::WinitPlugin;
+
+use crate::prelude::*;
 
 pub fn test_app() -> App {
     let mut app = App::new();
+
     app.add_plugins((
         DefaultPlugins
             .set(RenderPlugin {
@@ -27,6 +25,7 @@ pub fn test_app() -> App {
             .disable::<WinitPlugin>(),
         SpinePlugin::default(),
     ));
+
     app
 }
 
@@ -41,16 +40,18 @@ pub fn test_app_with_spineboy() -> App {
                 asset_server.load("spineboy/export/spineboy-pro.json"),
                 asset_server.load("spineboy/export/spineboy.atlas"),
             );
-            let skeleton_handle = skeletons.add(skeleton);
+
             commands.spawn(SpineBundle {
-                skeleton: skeleton_handle.into(),
+                skeleton: skeletons.add(skeleton).into(),
                 transform: Transform::from_xyz(0., -200., 0.).with_scale(Vec3::ONE * 0.5),
                 ..Default::default()
             });
         },
     );
+
     let ready = Arc::new(AtomicBool::new(false));
     let ready_inside = ready.clone();
+
     app.add_systems(
         Update,
         (move |mut spine_ready_events: EventReader<SpineReadyEvent>| {
@@ -60,17 +61,21 @@ pub fn test_app_with_spineboy() -> App {
         })
         .in_set(SpineSet::OnReady),
     );
+
     while !ready.load(Ordering::SeqCst) {
         app.update();
     }
+
     app
 }
 
 #[test]
 fn spawn() {
     let mut app = test_app_with_spineboy();
+
     app.add_systems(Update, |spine: Single<&Spine>| {
         assert_eq!(spine.skeleton.data().hash(), "LJppLyc3KtS7PVpP29XhA0jM8Lo");
     });
+
     app.update();
 }
