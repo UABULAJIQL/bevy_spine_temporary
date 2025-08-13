@@ -1,1 +1,3 @@
+attr_fn_like_width = 40
+array_width = 40
 single_line_let_else_max_width = 100

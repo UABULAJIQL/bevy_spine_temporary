@@ -112,23 +112,39 @@ impl Plugin for SpinePlugin {
     fn build(&self, app: &mut App) {
         if self.default_materials {
             app.add_plugins((
+                #[cfg(feature = "normal_material")]
                 Material2dPlugin::<SpineNormalMaterial>::default(),
+                #[cfg(feature = "additive_material")]
                 Material2dPlugin::<SpineAdditiveMaterial>::default(),
+                #[cfg(feature = "multiply_material")]
                 Material2dPlugin::<SpineMultiplyMaterial>::default(),
+                #[cfg(feature = "screen_material")]
                 Material2dPlugin::<SpineScreenMaterial>::default(),
+                #[cfg(feature = "normal_pma_material")]
                 Material2dPlugin::<SpineNormalPmaMaterial>::default(),
+                #[cfg(feature = "additive_pma_material")]
                 Material2dPlugin::<SpineAdditivePmaMaterial>::default(),
+                #[cfg(feature = "multiply_pma_material")]
                 Material2dPlugin::<SpineMultiplyPmaMaterial>::default(),
+                #[cfg(feature = "screen_pma_material")]
                 Material2dPlugin::<SpineScreenPmaMaterial>::default(),
             ))
             .add_plugins((
+                #[cfg(feature = "normal_material")]
                 SpineMaterialPlugin::<SpineNormalMaterial>::default(),
+                #[cfg(feature = "additive_material")]
                 SpineMaterialPlugin::<SpineAdditiveMaterial>::default(),
+                #[cfg(feature = "multiply_material")]
                 SpineMaterialPlugin::<SpineMultiplyMaterial>::default(),
+                #[cfg(feature = "screen_material")]
                 SpineMaterialPlugin::<SpineScreenMaterial>::default(),
+                #[cfg(feature = "normal_pma_material")]
                 SpineMaterialPlugin::<SpineNormalPmaMaterial>::default(),
+                #[cfg(feature = "additive_pma_material")]
                 SpineMaterialPlugin::<SpineAdditivePmaMaterial>::default(),
+                #[cfg(feature = "multiply_pma_material")]
                 SpineMaterialPlugin::<SpineMultiplyPmaMaterial>::default(),
+                #[cfg(feature = "screen_pma_material")]
                 SpineMaterialPlugin::<SpineScreenPmaMaterial>::default(),
             ));
         }

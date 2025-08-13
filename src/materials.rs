@@ -207,7 +207,10 @@ macro_rules! material {
             ) -> Option<Self> {
                 let spine_settings = params.spine_settings_query.get(entity).copied().unwrap_or_default();
 
-                if spine_settings.default_materials && renderable_data.blend_mode == $blend_mode && renderable_data.premultiplied_alpha == $premultiplied_alpha {
+                if spine_settings.default_materials
+                    && renderable_data.blend_mode == $blend_mode
+                    && renderable_data.premultiplied_alpha == $premultiplied_alpha
+                {
                     let mut material = material.unwrap_or_default();
                     material.image = renderable_data.texture;
 
@@ -220,6 +223,7 @@ macro_rules! material {
     };
 }
 
+#[cfg(feature = "normal_material")]
 material!(
     /// Normal blend mode material, non-premultiplied-alpha
     SpineNormalMaterial,
@@ -239,6 +243,7 @@ material!(
     }
 );
 
+#[cfg(feature = "additive_material")]
 material!(
     /// Additive blend mode material, non-premultiplied-alpha
     SpineAdditiveMaterial,
@@ -258,6 +263,7 @@ material!(
     }
 );
 
+#[cfg(feature = "multiply_material")]
 material!(
     /// Multiply blend mode material, non-premultiplied-alpha
     SpineMultiplyMaterial,
@@ -277,6 +283,7 @@ material!(
     }
 );
 
+#[cfg(feature = "screen_material")]
 material!(
     /// Screen blend mode material, non-premultiplied-alpha
     SpineScreenMaterial,
@@ -296,6 +303,7 @@ material!(
     }
 );
 
+#[cfg(feature = "normal_pma_material")]
 material!(
     /// Normal blend mode material, premultiplied-alpha
     SpineNormalPmaMaterial,
@@ -315,6 +323,7 @@ material!(
     }
 );
 
+#[cfg(feature = "additive_pma_material")]
 material!(
     /// Additive blend mode material, premultiplied-alpha
     SpineAdditivePmaMaterial,
@@ -334,6 +343,7 @@ material!(
     }
 );
 
+#[cfg(feature = "multiply_pma_material")]
 material!(
     /// Multiply blend mode material, premultiplied-alpha
     SpineMultiplyPmaMaterial,
@@ -353,6 +363,7 @@ material!(
     }
 );
 
+#[cfg(feature = "screen_pma_material")]
 material!(
     /// Screen blend mode material, premultiplied-alpha
     SpineScreenPmaMaterial,

@@ -10,6 +10,28 @@ license-file = "LICENSE"
 exclude = ["assets/*"]
 
 [features]
+default = ["default_materials"]
+
+default_materials = [
+    "normal_material",
+    "additive_material",
+    "multiply_material",
+    "screen_material",
+    "normal_pma_material",
+    "additive_pma_material",
+    "multiply_pma_material",
+    "screen_pma_material",
+]
+
+normal_material = []
+additive_material = []
+multiply_material = []
+screen_material = []
+normal_pma_material = []
+additive_pma_material = []
+multiply_pma_material = []
+screen_pma_material = []
+
 debug = []
 
 [dependencies]
