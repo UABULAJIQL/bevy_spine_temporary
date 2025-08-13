@@ -24,15 +24,28 @@ use rusty_spine::{AnimationStateData, BoneHandle};
 
 use assets::{AtlasLoader, SkeletonJsonLoader};
 use materials::{DARK_COLOR_ATTRIBUTE, SHADER_HANDLE};
-use materials::{
-    SpineAdditiveMaterial, SpineAdditivePmaMaterial, SpineMaterialInfo, SpineMaterialPlugin,
-    SpineMultiplyMaterial, SpineMultiplyPmaMaterial, SpineNormalMaterial, SpineNormalPmaMaterial,
-    SpineScreenMaterial, SpineScreenPmaMaterial,
-};
+use materials::{SpineMaterialInfo, SpineMaterialPlugin};
 use textures::{
     SpineTexture, SpineTextureConfig, SpineTextureCreateEvent, SpineTextureDisposeEvent,
     SpineTextures,
 };
+
+#[cfg(feature = "additive_material")]
+use materials::SpineAdditiveMaterial;
+#[cfg(feature = "additive_pma_material")]
+use materials::SpineAdditivePmaMaterial;
+#[cfg(feature = "multiply_material")]
+use materials::SpineMultiplyMaterial;
+#[cfg(feature = "multiply_pma_material")]
+use materials::SpineMultiplyPmaMaterial;
+#[cfg(feature = "normal_material")]
+use materials::SpineNormalMaterial;
+#[cfg(feature = "normal_pma_material")]
+use materials::SpineNormalPmaMaterial;
+#[cfg(feature = "screen_material")]
+use materials::SpineScreenMaterial;
+#[cfg(feature = "screen_pma_material")]
+use materials::SpineScreenPmaMaterial;
 
 pub use crate::assets::*;
 pub use crate::crossfades::Crossfades;
