@@ -1,15 +1,9 @@
 use bevy::prelude::*;
 use bevy_spine::prelude::*;
 
-use bevy::{
-    ecs::system::StaticSystemParam,
-    input::mouse::MouseMotion,
-    window::{CursorGrabMode, CursorOptions, PrimaryWindow},
-};
-use bevy_spine::{
-    SpineMeshType,
-    materials::{SpineMaterial, SpineMaterialInfo, SpineMaterialPlugin, SpineSettingsQuery},
-};
+use bevy::input::mouse::MouseMotion;
+use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
+use bevy_spine::SpineMeshType;
 
 #[derive(Component)]
 pub struct Orbit {
@@ -28,13 +22,7 @@ impl Default for Orbit {
 
 fn main() {
     App::new()
-        .add_plugins((
-            DefaultPlugins,
-            SpinePlugin {
-                default_materials: false,
-            },
-            SpineMaterialPlugin::<Spine3DMaterial>::default(),
-        ))
+        .add_plugins((DefaultPlugins, SpinePlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, (on_spawn.in_set(SpineSet::OnReady), controls))
         .run();
@@ -80,7 +68,6 @@ fn setup(
         skeleton: skeletons.add(skeleton).into(),
         transform: Transform::from_xyz(0., 0., 0.).with_scale(Vec3::ONE * 0.005),
         settings: SpineSettings {
-            default_materials: false,
             mesh_type: SpineMeshType::Mesh3D,
             ..default()
         },
@@ -136,44 +123,5 @@ fn controls(
             Vec3::new(orbit.angle.cos(), orbit.pitch.tan(), orbit.angle.sin()).normalize() * 7.;
 
         orbit_transform.look_at(Vec3::new(0., 1.5, 0.), Vec3::Y);
-    }
-}
-
-#[derive(Component)]
-pub struct Spine3DMaterial;
-
-impl SpineMaterial for Spine3DMaterial {
-    type MeshMaterial = MeshMaterial3d<StandardMaterial>;
-    type Material = StandardMaterial;
-    type Params<'w, 's> = SpineSettingsQuery<'w, 's>;
-
-    fn update(
-        material: Option<Self::Material>,
-        entity: Entity,
-        renderable_data: SpineMaterialInfo,
-        params: &StaticSystemParam<Self::Params<'_, '_>>,
-    ) -> Option<Self::Material> {
-        let spine_settings = params
-            .spine_settings_query
-            .get(entity)
-            .copied()
-            .unwrap_or(SpineSettings::default());
-
-        if spine_settings.mesh_type == SpineMeshType::Mesh3D {
-            let mut material = material.unwrap_or_else(|| Self::Material {
-                unlit: true,
-                alpha_mode: if renderable_data.premultiplied_alpha {
-                    AlphaMode::Premultiplied
-                } else {
-                    AlphaMode::Blend
-                },
-                ..Self::Material::default()
-            });
-
-            material.base_color_texture = Some(renderable_data.texture);
-            Some(material)
-        } else {
-            None
-        }
     }
 }

@@ -23,7 +23,7 @@ use rusty_spine::AnimationStateData;
 /// commands.spawn(SpineBundle {
 ///     // ...
 ///     crossfades,
-///     ..Default::default()
+///     ..default()
 /// });
 /// # }
 /// ```

@@ -8,7 +8,7 @@ pub struct Crosshair;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, SpinePlugin::default()))
+        .add_plugins((DefaultPlugins, SpinePlugin))
         .add_systems(Startup, setup)
         .add_systems(
             Update,

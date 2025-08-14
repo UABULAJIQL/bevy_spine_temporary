@@ -3,7 +3,7 @@ use bevy_spine::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, SpinePlugin::default()))
+        .add_plugins((DefaultPlugins, SpinePlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, on_spawn.in_set(SpineSet::OnReady))
         .run();

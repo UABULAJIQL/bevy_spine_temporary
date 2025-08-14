@@ -9,12 +9,10 @@ use std::sync::{Arc, Mutex};
 use bevy::prelude::*;
 
 use bevy::asset::RenderAssetUsages;
-use bevy::asset::load_internal_binary_asset;
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
 use bevy::mesh::{Indices, MeshVertexAttribute};
 use bevy::platform::collections::HashMap;
 use bevy::render::render_resource::{PrimitiveTopology, VertexFormat};
-use bevy::sprite::Material2dPlugin;
 use rusty_spine::atlas::{AtlasFilter, AtlasWrap};
 use rusty_spine::controller::SkeletonControllerSettings;
 use rusty_spine::controller::{SkeletonCombinedRenderable, SkeletonRenderable};
@@ -23,29 +21,61 @@ use rusty_spine::{AnimationEvent, Skeleton};
 use rusty_spine::{AnimationStateData, BoneHandle};
 
 use assets::{AtlasLoader, SkeletonJsonLoader};
-use materials::{DARK_COLOR_ATTRIBUTE, SHADER_HANDLE};
+use materials::DARK_COLOR_ATTRIBUTE;
 use materials::{SpineMaterialInfo, SpineMaterialPlugin};
 use textures::{
     SpineTexture, SpineTextureConfig, SpineTextureCreateEvent, SpineTextureDisposeEvent,
     SpineTextures,
 };
 
-#[cfg(feature = "additive_material")]
-use materials::SpineAdditiveMaterial;
-#[cfg(feature = "additive_pma_material")]
-use materials::SpineAdditivePmaMaterial;
-#[cfg(feature = "multiply_material")]
-use materials::SpineMultiplyMaterial;
-#[cfg(feature = "multiply_pma_material")]
-use materials::SpineMultiplyPmaMaterial;
-#[cfg(feature = "normal_material")]
-use materials::SpineNormalMaterial;
-#[cfg(feature = "normal_pma_material")]
-use materials::SpineNormalPmaMaterial;
-#[cfg(feature = "screen_material")]
-use materials::SpineScreenMaterial;
-#[cfg(feature = "screen_pma_material")]
-use materials::SpineScreenPmaMaterial;
+#[cfg(feature = "2d")]
+use bevy::asset::load_internal_binary_asset;
+#[cfg(feature = "2d")]
+use bevy::sprite::Material2dPlugin;
+
+#[cfg(all(
+    feature = "2d",
+    feature = "additive_material",
+))]
+use materials::material_2d::SpineAdditiveMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "additive_pma_material",
+))]
+use materials::material_2d::SpineAdditivePmaMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "multiply_material",
+))]
+use materials::material_2d::SpineMultiplyMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "multiply_pma_material",
+))]
+use materials::material_2d::SpineMultiplyPmaMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "normal_material",
+))]
+use materials::material_2d::SpineNormalMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "normal_pma_material",
+))]
+use materials::material_2d::SpineNormalPmaMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "screen_material",
+))]
+use materials::material_2d::SpineScreenMaterial;
+#[cfg(all(
+    feature = "2d",
+    feature = "screen_pma_material",
+))]
+use materials::material_2d::SpineScreenPmaMaterial;
+
+#[cfg(feature = "3d")]
+use materials::material_3d::Spine3DMaterial;
 
 pub use crate::assets::*;
 pub use crate::crossfades::Crossfades;
@@ -104,63 +134,55 @@ pub enum SpineSet {
 /// # fn doc() {
 /// App::new()
 ///     .add_plugins(DefaultPlugins)
-///     .add_plugins(SpinePlugin::default())
+///     .add_plugins(SpinePlugin)
 ///     // ...
 ///     .run();
 /// # }
 /// ```
-pub struct SpinePlugin {
-    pub default_materials: bool,
-}
-
-impl Default for SpinePlugin {
-    fn default() -> Self {
-        Self {
-            default_materials: true,
-        }
-    }
-}
+pub struct SpinePlugin;
 
 impl Plugin for SpinePlugin {
     fn build(&self, app: &mut App) {
-        if self.default_materials {
-            app.add_plugins((
-                #[cfg(feature = "normal_material")]
-                Material2dPlugin::<SpineNormalMaterial>::default(),
-                #[cfg(feature = "additive_material")]
-                Material2dPlugin::<SpineAdditiveMaterial>::default(),
-                #[cfg(feature = "multiply_material")]
-                Material2dPlugin::<SpineMultiplyMaterial>::default(),
-                #[cfg(feature = "screen_material")]
-                Material2dPlugin::<SpineScreenMaterial>::default(),
-                #[cfg(feature = "normal_pma_material")]
-                Material2dPlugin::<SpineNormalPmaMaterial>::default(),
-                #[cfg(feature = "additive_pma_material")]
-                Material2dPlugin::<SpineAdditivePmaMaterial>::default(),
-                #[cfg(feature = "multiply_pma_material")]
-                Material2dPlugin::<SpineMultiplyPmaMaterial>::default(),
-                #[cfg(feature = "screen_pma_material")]
-                Material2dPlugin::<SpineScreenPmaMaterial>::default(),
-            ))
-            .add_plugins((
-                #[cfg(feature = "normal_material")]
-                SpineMaterialPlugin::<SpineNormalMaterial>::default(),
-                #[cfg(feature = "additive_material")]
-                SpineMaterialPlugin::<SpineAdditiveMaterial>::default(),
-                #[cfg(feature = "multiply_material")]
-                SpineMaterialPlugin::<SpineMultiplyMaterial>::default(),
-                #[cfg(feature = "screen_material")]
-                SpineMaterialPlugin::<SpineScreenMaterial>::default(),
-                #[cfg(feature = "normal_pma_material")]
-                SpineMaterialPlugin::<SpineNormalPmaMaterial>::default(),
-                #[cfg(feature = "additive_pma_material")]
-                SpineMaterialPlugin::<SpineAdditivePmaMaterial>::default(),
-                #[cfg(feature = "multiply_pma_material")]
-                SpineMaterialPlugin::<SpineMultiplyPmaMaterial>::default(),
-                #[cfg(feature = "screen_pma_material")]
-                SpineMaterialPlugin::<SpineScreenPmaMaterial>::default(),
-            ));
-        }
+        #[cfg(feature = "2d")]
+        app.add_plugins((
+            #[cfg(feature = "normal_material")]
+            Material2dPlugin::<SpineNormalMaterial>::default(),
+            #[cfg(feature = "additive_material")]
+            Material2dPlugin::<SpineAdditiveMaterial>::default(),
+            #[cfg(feature = "multiply_material")]
+            Material2dPlugin::<SpineMultiplyMaterial>::default(),
+            #[cfg(feature = "screen_material")]
+            Material2dPlugin::<SpineScreenMaterial>::default(),
+            #[cfg(feature = "normal_pma_material")]
+            Material2dPlugin::<SpineNormalPmaMaterial>::default(),
+            #[cfg(feature = "additive_pma_material")]
+            Material2dPlugin::<SpineAdditivePmaMaterial>::default(),
+            #[cfg(feature = "multiply_pma_material")]
+            Material2dPlugin::<SpineMultiplyPmaMaterial>::default(),
+            #[cfg(feature = "screen_pma_material")]
+            Material2dPlugin::<SpineScreenPmaMaterial>::default(),
+        ))
+        .add_plugins((
+            #[cfg(feature = "normal_material")]
+            SpineMaterialPlugin::<SpineNormalMaterial>::default(),
+            #[cfg(feature = "additive_material")]
+            SpineMaterialPlugin::<SpineAdditiveMaterial>::default(),
+            #[cfg(feature = "multiply_material")]
+            SpineMaterialPlugin::<SpineMultiplyMaterial>::default(),
+            #[cfg(feature = "screen_material")]
+            SpineMaterialPlugin::<SpineScreenMaterial>::default(),
+            #[cfg(feature = "normal_pma_material")]
+            SpineMaterialPlugin::<SpineNormalPmaMaterial>::default(),
+            #[cfg(feature = "additive_pma_material")]
+            SpineMaterialPlugin::<SpineAdditivePmaMaterial>::default(),
+            #[cfg(feature = "multiply_pma_material")]
+            SpineMaterialPlugin::<SpineMultiplyPmaMaterial>::default(),
+            #[cfg(feature = "screen_pma_material")]
+            SpineMaterialPlugin::<SpineScreenPmaMaterial>::default(),
+        ));
+
+        #[cfg(feature = "3d")]
+        app.add_plugins(SpineMaterialPlugin::<Spine3DMaterial>::default());
 
         app.add_plugins(SpineSyncPlugin::first())
             .init_resource::<SpineEventQueue>()
@@ -208,9 +230,13 @@ impl Plugin for SpinePlugin {
                 adjust_spine_textures.in_set(SpineSystem::AdjustSpineTextures),
             );
 
-        load_internal_binary_asset!(app, SHADER_HANDLE, "spine.wgsl", |bytes, path: String| {
-            Shader::from_wgsl(String::from_utf8_lossy(bytes), path)
-        });
+        #[cfg(feature = "2d")]
+        load_internal_binary_asset!(
+            app,
+            materials::SHADER_HANDLE,
+            "spine.wgsl",
+            |bytes, path: String| { Shader::from_wgsl(String::from_utf8_lossy(bytes), path) }
+        );
     }
 }
 
@@ -333,7 +359,7 @@ impl SpineLoader {
     /// commands.spawn(SpineBundle {
     ///     // ..
     ///     loader: SpineLoader::without_children(),
-    ///     ..Default::default()
+    ///     ..default()
     /// });
     /// # }
     /// ```
@@ -446,7 +472,7 @@ impl Default for SpineSettings {
 ///     commands.spawn((
 ///         SpineBundle {
 ///             skeleton: SkeletonDataHandle(my_game_assets.skeleton.clone()),
-///             ..Default::default()
+///             ..default()
 ///         },
 ///         MySpine
 ///     ));
@@ -908,7 +934,19 @@ pub enum SkeletonRenderableKind {
 fn spine_update_meshes(
     mut spine_query: Query<(&mut Spine, Option<&SpineSettings>)>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut mesh_query: Query<(
+    #[cfg(feature = "2d")] mut mesh_query: Query<(
+        Entity,
+        &mut SpineMesh,
+        &mut Transform,
+        Option<&Mesh2d>,
+    )>,
+    #[cfg(feature = "3d")] mut mesh_query: Query<(
+        Entity,
+        &mut SpineMesh,
+        &mut Transform,
+        Option<&Mesh3d>,
+    )>,
+    #[cfg(all(feature = "2d", feature = "3d"))] mut mesh_query: Query<(
         Entity,
         &mut SpineMesh,
         &mut Transform,
@@ -943,154 +981,174 @@ fn spine_update_meshes(
         let mut renderable_index = 0;
 
         for child in meshes_children.iter() {
-            if let Ok((
+            #[cfg(feature = "2d")]
+            let Ok((spine_mesh_entity, mut spine_mesh, mut spine_mesh_transform, spine_2d_mesh)) =
+                mesh_query.get_mut(child)
+            else {
+                continue;
+            };
+
+            #[cfg(feature = "3d")]
+            let Ok((spine_mesh_entity, mut spine_mesh, mut spine_mesh_transform, spine_3d_mesh)) =
+                mesh_query.get_mut(child)
+            else {
+                continue;
+            };
+
+            #[cfg(all(feature = "2d", feature = "3d"))]
+            let Ok((
                 spine_mesh_entity,
                 mut spine_mesh,
                 mut spine_mesh_transform,
                 spine_2d_mesh,
                 spine_3d_mesh,
             )) = mesh_query.get_mut(child)
-            {
-                macro_rules! apply_mesh {
-                    ($mesh:ident, $condition:expr, $attach:expr, $deattach:ty) => {
-                        if $condition {
-                            if !$mesh.is_some() {
-                                if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
-                                    entity.insert($attach);
-                                }
-                            }
-                        } else {
-                            if $mesh.is_some() {
-                                if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
-                                    entity.remove::<$deattach>();
-                                }
+            else {
+                continue;
+            };
+
+            macro_rules! apply_mesh {
+                ($mesh:ident, $condition:expr, $attach:expr, $deattach:ty) => {
+                    if $condition {
+                        if $mesh.is_none() {
+                            if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
+                                entity.insert($attach);
                             }
                         }
-                    };
-                }
-
-                apply_mesh!(
-                    spine_2d_mesh,
-                    mesh_type == SpineMeshType::Mesh2D,
-                    Mesh2d(spine_mesh.handle.clone()),
-                    Mesh3d
-                );
-
-                apply_mesh!(
-                    spine_3d_mesh,
-                    mesh_type == SpineMeshType::Mesh3D,
-                    Mesh3d(spine_mesh.handle.clone()),
-                    Mesh3d
-                );
-
-                let Some(mesh) = meshes.get_mut(&spine_mesh.handle) else { continue };
-                let mut empty = true;
-
-                'render: {
-                    let (
-                        slot_index,
-                        attachment_renderer_object,
-                        vertices,
-                        indices,
-                        uvs,
-                        colors,
-                        dark_colors,
-                        blend_mode,
-                    ) = match &mut renderables {
-                        SkeletonRenderableKind::Simple(vec) => {
-                            let Some(renderable) = vec.get_mut(renderable_index) else {
-                                break 'render;
-                            };
-
-                            let colors = vec![
-                                [
-                                    renderable.color.r,
-                                    renderable.color.g,
-                                    renderable.color.b,
-                                    renderable.color.a
-                                ];
-                                renderable.vertices.len()
-                            ];
-
-                            let dark_colors = vec![
-                                [
-                                    renderable.dark_color.r,
-                                    renderable.dark_color.g,
-                                    renderable.dark_color.b,
-                                    renderable.dark_color.a
-                                ];
-                                renderable.vertices.len()
-                            ];
-
-                            (
-                                Some(renderable.slot_index),
-                                renderable.attachment_renderer_object,
-                                mem::take(&mut renderable.vertices),
-                                mem::take(&mut renderable.indices),
-                                mem::take(&mut renderable.uvs),
-                                colors,
-                                dark_colors,
-                                renderable.blend_mode,
-                            )
+                    } else {
+                        if $mesh.is_some() {
+                            if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
+                                entity.remove::<$deattach>();
+                            }
                         }
-                        SkeletonRenderableKind::Combined(vec) => {
-                            let Some(renderable) = vec.get_mut(renderable_index) else {
-                                break 'render;
-                            };
-
-                            (
-                                None,
-                                renderable.attachment_renderer_object,
-                                mem::take(&mut renderable.vertices),
-                                mem::take(&mut renderable.indices),
-                                mem::take(&mut renderable.uvs),
-                                mem::take(&mut renderable.colors),
-                                mem::take(&mut renderable.dark_colors),
-                                renderable.blend_mode,
-                            )
-                        }
-                    };
-
-                    let Some(attachment_render_object) = attachment_renderer_object else {
-                        break 'render;
-                    };
-
-                    let spine_texture =
-                        unsafe { &mut *(attachment_render_object as *mut SpineTexture) };
-                    let texture_path = spine_texture.0.clone();
-
-                    let normals = vec![[0.; 3]; vertices.len()];
-
-                    mesh.insert_indices(Indices::U16(indices));
-                    mesh.insert_attribute(
-                        MeshVertexAttribute::new("Vertex_Position", 0, VertexFormat::Float32x2),
-                        vertices,
-                    );
-                    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
-                    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-                    mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
-                    mesh.insert_attribute(DARK_COLOR_ATTRIBUTE, dark_colors);
-
-                    spine_mesh.state = SpineMeshState::Renderable {
-                        info: SpineMaterialInfo {
-                            slot_index,
-                            texture: asset_server.load(texture_path),
-                            blend_mode,
-                            premultiplied_alpha,
-                        },
-                    };
-
-                    spine_mesh_transform.translation.z = z;
-                    z += 0.001;
-                    empty = false;
-                }
-
-                if empty {
-                    spine_mesh.state = SpineMeshState::Empty;
-                    empty_mesh(mesh);
-                }
-                renderable_index += 1;
+                    }
+                };
             }
+
+            #[cfg(feature = "2d")]
+            apply_mesh!(
+                spine_2d_mesh,
+                mesh_type == SpineMeshType::Mesh2D,
+                Mesh2d(spine_mesh.handle.clone()),
+                Mesh3d
+            );
+
+            #[cfg(feature = "3d")]
+            apply_mesh!(
+                spine_3d_mesh,
+                mesh_type == SpineMeshType::Mesh3D,
+                Mesh3d(spine_mesh.handle.clone()),
+                Mesh3d
+            );
+
+            let Some(mesh) = meshes.get_mut(&spine_mesh.handle) else { continue };
+            let mut empty = true;
+
+            'render: {
+                let (
+                    slot_index,
+                    attachment_renderer_object,
+                    vertices,
+                    indices,
+                    uvs,
+                    colors,
+                    dark_colors,
+                    blend_mode,
+                ) = match &mut renderables {
+                    SkeletonRenderableKind::Simple(vec) => {
+                        let Some(renderable) = vec.get_mut(renderable_index) else {
+                            break 'render;
+                        };
+
+                        let colors = vec![
+                            [
+                                renderable.color.r,
+                                renderable.color.g,
+                                renderable.color.b,
+                                renderable.color.a
+                            ];
+                            renderable.vertices.len()
+                        ];
+
+                        let dark_colors = vec![
+                            [
+                                renderable.dark_color.r,
+                                renderable.dark_color.g,
+                                renderable.dark_color.b,
+                                renderable.dark_color.a
+                            ];
+                            renderable.vertices.len()
+                        ];
+
+                        (
+                            Some(renderable.slot_index),
+                            renderable.attachment_renderer_object,
+                            mem::take(&mut renderable.vertices),
+                            mem::take(&mut renderable.indices),
+                            mem::take(&mut renderable.uvs),
+                            colors,
+                            dark_colors,
+                            renderable.blend_mode,
+                        )
+                    }
+                    SkeletonRenderableKind::Combined(vec) => {
+                        let Some(renderable) = vec.get_mut(renderable_index) else {
+                            break 'render;
+                        };
+
+                        (
+                            None,
+                            renderable.attachment_renderer_object,
+                            mem::take(&mut renderable.vertices),
+                            mem::take(&mut renderable.indices),
+                            mem::take(&mut renderable.uvs),
+                            mem::take(&mut renderable.colors),
+                            mem::take(&mut renderable.dark_colors),
+                            renderable.blend_mode,
+                        )
+                    }
+                };
+
+                let Some(attachment_render_object) = attachment_renderer_object else {
+                    break 'render;
+                };
+
+                let spine_texture =
+                    unsafe { &mut *(attachment_render_object as *mut SpineTexture) };
+                let texture_path = spine_texture.0.clone();
+
+                let normals = vec![[0.; 3]; vertices.len()];
+
+                mesh.insert_indices(Indices::U16(indices));
+                mesh.insert_attribute(
+                    MeshVertexAttribute::new("Vertex_Position", 0, VertexFormat::Float32x2),
+                    vertices,
+                );
+                mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
+                mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
+                mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
+                mesh.insert_attribute(DARK_COLOR_ATTRIBUTE, dark_colors);
+
+                spine_mesh.state = SpineMeshState::Renderable {
+                    info: SpineMaterialInfo {
+                        slot_index,
+                        texture: asset_server.load(texture_path),
+                        blend_mode,
+                        premultiplied_alpha,
+                    },
+                };
+
+                spine_mesh_transform.translation.z = z;
+                z += 0.001;
+                empty = false;
+            }
+
+            if empty {
+                spine_mesh.state = SpineMeshState::Empty;
+                empty_mesh(mesh);
+            }
+
+            renderable_index += 1;
         }
     }
 }
@@ -1162,7 +1220,7 @@ fn adjust_spine_textures(
                 mag_filter: convert_filter(handle_config.mag_filter),
                 address_mode_u: convert_wrap(handle_config.u_wrap),
                 address_mode_v: convert_wrap(handle_config.v_wrap),
-                ..Default::default()
+                ..default()
             });
 
             // The RGB components exported from Spine were premultiplied in nonlinear space, but need to be

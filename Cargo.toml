@@ -3,16 +3,14 @@ name = "bevy_spine"
 version = "0.11.0-dev"
 edition = "2024"
 description = "Spine plugin for Bevy utilizing rusty_spine"
-homepage = "https://github.com/jabuwu/bevy_spine"
+homepage = "https://github.com/supdrewin/bevy_spine"
 repository = "https://github.com/supdrewin/bevy_spine"
 readme = "readme.md"
 license-file = "LICENSE"
 exclude = ["assets/*"]
 
 [features]
-default = ["default_materials"]
-
-default_materials = [
+default = [
     "normal_material",
     "additive_material",
     "multiply_material",
@@ -23,14 +21,17 @@ default_materials = [
     "screen_pma_material",
 ]
 
-normal_material = []
-additive_material = []
-multiply_material = []
-screen_material = []
-normal_pma_material = []
-additive_pma_material = []
-multiply_pma_material = []
-screen_pma_material = []
+normal_material = ["2d"]
+additive_material = ["2d"]
+multiply_material = ["2d"]
+screen_material = ["2d"]
+normal_pma_material = ["2d"]
+additive_pma_material = ["2d"]
+multiply_pma_material = ["2d"]
+screen_pma_material = ["2d"]
+
+2d = ["bevy/bevy_asset", "bevy/bevy_sprite"]
+3d = []
 
 debug = []
 
@@ -41,7 +42,7 @@ thiserror = "2"
 [dependencies.bevy]
 git = "https://github.com/bevyengine/bevy"
 default-features = false
-features = ["bevy_render", "bevy_asset", "bevy_sprite"]
+features = ["bevy_render"]
 
 [dependencies.rusty_spine]
 git = "https://github.com/supdrewin/rusty_spine"

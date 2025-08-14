@@ -167,7 +167,7 @@ impl SkeletonData {
     ///     // to spawn the skeleton
     ///     commands.spawn(SpineBundle {
     ///         skeleton,
-    ///         ..Default::default()
+    ///         ..default()
     ///     });
     /// }
     /// ```
@@ -203,7 +203,7 @@ impl SkeletonData {
     ///     // to spawn the skeleton
     ///     commands.spawn(SpineBundle {
     ///         skeleton,
-    ///         ..Default::default()
+    ///         ..default()
     ///     });
     /// }
     /// ```

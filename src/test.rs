@@ -23,7 +23,7 @@ pub fn test_app() -> App {
             })
             .build()
             .disable::<WinitPlugin>(),
-        SpinePlugin::default(),
+        SpinePlugin,
     ));
 
     app
@@ -44,7 +44,7 @@ pub fn test_app_with_spineboy() -> App {
             commands.spawn(SpineBundle {
                 skeleton: skeletons.add(skeleton).into(),
                 transform: Transform::from_xyz(0., -200., 0.).with_scale(Vec3::ONE * 0.5),
-                ..Default::default()
+                ..default()
             });
         },
     );

@@ -10,7 +10,7 @@ pub enum ExampleSet {
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, SpinePlugin::default()))
+        .add_plugins((DefaultPlugins, SpinePlugin))
         .init_resource::<DemoData>()
         .add_systems(Startup, setup)
         .add_systems(

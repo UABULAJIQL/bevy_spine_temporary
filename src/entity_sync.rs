@@ -54,7 +54,7 @@ pub enum SpineSynchronizerSet<T: SpineSynchronizer> {
 ///     App::new()
 ///         .add_plugins((
 ///             DefaultPlugins,
-///             SpinePlugin::default(),
+///             SpinePlugin,
 ///             MySpineSyncPlugin::default(),
 ///         ))
 ///         .add_systems(Update, (
@@ -72,7 +72,7 @@ pub enum SpineSynchronizerSet<T: SpineSynchronizer> {
 ///     commands.spawn((
 ///         SpineBundle {
 ///             // ..
-///             ..Default::default()
+///             ..default()
 ///         },
 ///         // synchronize in both steps
 ///         SpineSync,
@@ -209,7 +209,7 @@ pub fn spine_sync_entities_applied<S: SpineSynchronizer>(
 /// commands.spawn((
 ///     SpineBundle {
 ///         // ..
-///         ..Default::default()
+///         ..default()
 ///     },
 ///     SpineSync
 /// ));
@@ -236,7 +236,7 @@ pub type SpineSyncSystem = SpineSynchronizerSystem<SpineSync>;
 /// # fn doc() {
 /// fn main() {
 ///     App::new()
-///         .add_plugins((DefaultPlugins, SpinePlugin::default()))
+///         .add_plugins((DefaultPlugins, SpinePlugin))
 ///         .add_systems(Update, (
 ///             spawn,
 ///             before_sync.in_set(SpineSyncSet::BeforeSync),
@@ -253,7 +253,7 @@ pub type SpineSyncSystem = SpineSynchronizerSystem<SpineSync>;
 ///     commands.spawn((
 ///         SpineBundle {
 ///             // ..
-///             ..Default::default()
+///             ..default()
 ///         },
 ///         SpineSync,
 ///     ));

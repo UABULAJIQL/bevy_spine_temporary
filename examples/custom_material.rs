@@ -17,9 +17,7 @@ fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
-            SpinePlugin {
-                default_materials: false,
-            },
+            SpinePlugin,
             Material2dPlugin::<MyMaterial>::default(),
             SpineMaterialPlugin::<MyMaterial>::default(),
         ))
