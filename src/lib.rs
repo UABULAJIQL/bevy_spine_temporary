@@ -418,7 +418,13 @@ impl Default for SpineSettings {
     fn default() -> Self {
         Self {
             default_materials: true,
+            #[cfg(all(
+                any(feature = "2d", feature = "3d"),
+                feature = "2d",
+            ))]
             mesh_type: SpineMeshType::Mesh2D,
+            #[cfg(all(not(feature = "2d"), feature = "3d"))]
+            mesh_type: SpineMeshType::Mesh3D,
             drawer: SpineDrawer::Combined,
             premultiplied_alpha: false,
         }
@@ -967,7 +973,7 @@ fn spine_update_meshes(
             drawer,
             premultiplied_alpha,
             ..
-        } = spine_mesh_type.cloned().unwrap_or(SpineSettings::default());
+        } = spine_mesh_type.cloned().unwrap_or_default();
 
         let mut renderables = match drawer {
             SpineDrawer::Combined => {
