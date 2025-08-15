@@ -11,6 +11,7 @@ use std::marker::PhantomData;
 
 use bevy::prelude::*;
 
+#[cfg(feature = "default_shader")]
 use bevy::asset::uuid_handle;
 use bevy::ecs::system::{StaticSystemParam, SystemParam};
 use bevy::mesh::MeshVertexAttribute;
@@ -134,4 +135,5 @@ pub const DARK_COLOR_ATTRIBUTE: MeshVertexAttribute = MeshVertexAttribute::new(
     VertexFormat::Float32x4,
 );
 
+#[cfg(feature = "default_shader")]
 pub const SHADER_HANDLE: Handle<Shader> = uuid_handle!("38b42512-1b99-43ed-ad09-6f36bb4ca3f9");

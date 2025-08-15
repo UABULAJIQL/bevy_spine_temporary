@@ -30,7 +30,9 @@ additive_pma_material = ["2d"]
 multiply_pma_material = ["2d"]
 screen_pma_material = ["2d"]
 
-2d = ["bevy/bevy_asset", "bevy/bevy_sprite"]
+default_shader = []
+
+2d = ["bevy/bevy_sprite", "default_shader"]
 3d = ["bevy/bevy_pbr"]
 
 debug = []
@@ -42,7 +44,7 @@ thiserror = "2"
 [dependencies.bevy]
 git = "https://github.com/bevyengine/bevy"
 default-features = false
-features = ["bevy_render"]
+features = ["bevy_asset", "bevy_render"]
 
 [dependencies.rusty_spine]
 git = "https://github.com/supdrewin/rusty_spine"

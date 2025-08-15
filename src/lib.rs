@@ -28,8 +28,11 @@ use textures::{
     SpineTextures,
 };
 
-#[cfg(feature = "2d")]
+#[cfg(feature = "default_shader")]
 use bevy::asset::load_internal_binary_asset;
+#[cfg(feature = "default_shader")]
+use materials::SHADER_HANDLE;
+
 #[cfg(feature = "2d")]
 use bevy::sprite::Material2dPlugin;
 
@@ -230,13 +233,10 @@ impl Plugin for SpinePlugin {
                 adjust_spine_textures.in_set(SpineSystem::AdjustSpineTextures),
             );
 
-        #[cfg(feature = "2d")]
-        load_internal_binary_asset!(
-            app,
-            materials::SHADER_HANDLE,
-            "spine.wgsl",
-            |bytes, path: String| { Shader::from_wgsl(String::from_utf8_lossy(bytes), path) }
-        );
+        #[cfg(feature = "default_shader")]
+        load_internal_binary_asset!(app, SHADER_HANDLE, "spine.wgsl", |bytes, path: String| {
+            Shader::from_wgsl(String::from_utf8_lossy(bytes), path)
+        });
     }
 }
 
