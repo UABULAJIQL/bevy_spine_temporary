@@ -3,7 +3,6 @@ use bevy_spine::prelude::*;
 
 use bevy::input::mouse::MouseMotion;
 use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
-use bevy_spine::SpineMeshType;
 
 #[derive(Component)]
 pub struct Orbit {
@@ -67,6 +66,7 @@ fn setup(
     commands.spawn(SpineBundle {
         skeleton: skeletons.add(skeleton).into(),
         transform: Transform::from_xyz(0., 0., 0.).with_scale(Vec3::ONE * 0.005),
+        #[cfg(all(feature = "2d", feature = "3d"))]
         settings: SpineSettings {
             mesh_type: SpineMeshType::Mesh3D,
             ..default()

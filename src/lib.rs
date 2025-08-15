@@ -381,6 +381,7 @@ pub struct SpineSettings {
     /// this Spine.
     pub default_materials: bool,
     /// Indicates how the meshes should be drawn.
+    #[cfg(all(feature = "2d", feature = "3d"))]
     pub mesh_type: SpineMeshType,
     /// The drawer this Spine should use to create its meshes.
     pub drawer: SpineDrawer,
@@ -390,6 +391,7 @@ pub struct SpineSettings {
 
 /// Mesh types to use in [`SpineSettings`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(all(feature = "2d", feature = "3d"))]
 pub enum SpineMeshType {
     /// Render meshes in 2D.
     Mesh2D,
@@ -418,13 +420,8 @@ impl Default for SpineSettings {
     fn default() -> Self {
         Self {
             default_materials: true,
-            #[cfg(all(
-                any(feature = "2d", feature = "3d"),
-                feature = "2d",
-            ))]
+            #[cfg(all(feature = "2d", feature = "3d"))]
             mesh_type: SpineMeshType::Mesh2D,
-            #[cfg(all(not(feature = "2d"), feature = "3d"))]
-            mesh_type: SpineMeshType::Mesh3D,
             drawer: SpineDrawer::Combined,
             premultiplied_alpha: false,
         }
@@ -968,8 +965,16 @@ fn spine_update_meshes(
             continue;
         };
 
+        #[cfg(all(feature = "2d", feature = "3d"))]
         let SpineSettings {
             mesh_type,
+            drawer,
+            premultiplied_alpha,
+            ..
+        } = spine_mesh_type.cloned().unwrap_or_default();
+
+        #[cfg(not(all(feature = "2d", feature = "3d")))]
+        let SpineSettings {
             drawer,
             premultiplied_alpha,
             ..
@@ -1013,39 +1018,54 @@ fn spine_update_meshes(
                 continue;
             };
 
-            macro_rules! apply_mesh {
-                ($mesh:ident, $condition:expr, $attach:expr, $deattach:ty) => {
-                    if $condition {
-                        if $mesh.is_none() {
-                            if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
-                                entity.insert($attach);
-                            }
-                        }
-                    } else {
-                        if $mesh.is_some() {
-                            if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
-                                entity.remove::<$deattach>();
-                            }
-                        }
-                    }
-                };
+            #[cfg(feature = "2d")]
+            if spine_2d_mesh.is_none() {
+                if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
+                    entity.insert(Mesh2d(spine_mesh.handle.clone()));
+                }
             }
 
-            #[cfg(feature = "2d")]
-            apply_mesh!(
-                spine_2d_mesh,
-                mesh_type == SpineMeshType::Mesh2D,
-                Mesh2d(spine_mesh.handle.clone()),
-                Mesh3d
-            );
-
             #[cfg(feature = "3d")]
-            apply_mesh!(
-                spine_3d_mesh,
-                mesh_type == SpineMeshType::Mesh3D,
-                Mesh3d(spine_mesh.handle.clone()),
-                Mesh3d
-            );
+            if spine_3d_mesh.is_none() {
+                if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
+                    entity.insert(Mesh3d(spine_mesh.handle.clone()));
+                }
+            }
+
+            #[cfg(all(feature = "2d", feature = "3d"))]
+            {
+                macro_rules! apply_mesh {
+                    ($mesh:ident, $condition:expr, $attach:expr, $deattach:ty) => {
+                        if $condition {
+                            if $mesh.is_none() {
+                                if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
+                                    entity.insert($attach);
+                                }
+                            }
+                        } else {
+                            if $mesh.is_some() {
+                                if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
+                                    entity.remove::<$deattach>();
+                                }
+                            }
+                        }
+                    };
+                }
+
+                apply_mesh!(
+                    spine_2d_mesh,
+                    mesh_type == SpineMeshType::Mesh2D,
+                    Mesh2d(spine_mesh.handle.clone()),
+                    Mesh3d
+                );
+
+                apply_mesh!(
+                    spine_3d_mesh,
+                    mesh_type == SpineMeshType::Mesh3D,
+                    Mesh3d(spine_mesh.handle.clone()),
+                    Mesh3d
+                );
+            }
 
             let Some(mesh) = meshes.get_mut(&spine_mesh.handle) else { continue };
             let mut empty = true;
