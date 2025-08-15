@@ -31,7 +31,7 @@ multiply_pma_material = ["2d"]
 screen_pma_material = ["2d"]
 
 2d = ["bevy/bevy_asset", "bevy/bevy_sprite"]
-3d = []
+3d = ["bevy/bevy_pbr"]
 
 debug = []
 

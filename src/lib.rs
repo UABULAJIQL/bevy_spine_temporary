@@ -937,13 +937,13 @@ pub enum SkeletonRenderableKind {
 fn spine_update_meshes(
     mut spine_query: Query<(&mut Spine, Option<&SpineSettings>)>,
     mut meshes: ResMut<Assets<Mesh>>,
-    #[cfg(feature = "2d")] mut mesh_query: Query<(
+    #[cfg(all(feature = "2d", not(feature = "3d")))] mut mesh_query: Query<(
         Entity,
         &mut SpineMesh,
         &mut Transform,
         Option<&Mesh2d>,
     )>,
-    #[cfg(feature = "3d")] mut mesh_query: Query<(
+    #[cfg(all(feature = "3d", not(feature = "2d")))] mut mesh_query: Query<(
         Entity,
         &mut SpineMesh,
         &mut Transform,
@@ -992,14 +992,14 @@ fn spine_update_meshes(
         let mut renderable_index = 0;
 
         for child in meshes_children.iter() {
-            #[cfg(feature = "2d")]
+            #[cfg(all(feature = "2d", not(feature = "3d")))]
             let Ok((spine_mesh_entity, mut spine_mesh, mut spine_mesh_transform, spine_2d_mesh)) =
                 mesh_query.get_mut(child)
             else {
                 continue;
             };
 
-            #[cfg(feature = "3d")]
+            #[cfg(all(feature = "3d", not(feature = "2d")))]
             let Ok((spine_mesh_entity, mut spine_mesh, mut spine_mesh_transform, spine_3d_mesh)) =
                 mesh_query.get_mut(child)
             else {
@@ -1018,14 +1018,14 @@ fn spine_update_meshes(
                 continue;
             };
 
-            #[cfg(feature = "2d")]
+            #[cfg(all(feature = "2d", not(feature = "3d")))]
             if spine_2d_mesh.is_none() {
                 if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
                     entity.insert(Mesh2d(spine_mesh.handle.clone()));
                 }
             }
 
-            #[cfg(feature = "3d")]
+            #[cfg(all(feature = "3d", not(feature = "2d")))]
             if spine_3d_mesh.is_none() {
                 if let Ok(mut entity) = commands.get_entity(spine_mesh_entity) {
                     entity.insert(Mesh3d(spine_mesh.handle.clone()));

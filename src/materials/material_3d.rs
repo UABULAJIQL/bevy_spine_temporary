@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use rusty_spine::BlendMode;
 
+#[cfg(feature = "2d")]
 use crate::SpineMeshType;
 
 #[derive(Component)]
@@ -20,8 +21,17 @@ impl super::SpineMaterial for Spine3DMaterial {
     ) -> Option<Self::Material> {
         match params.spine_settings_query.get(entity) {
             Ok(spine_settings)
-                if spine_settings.default_materials
-                    && spine_settings.mesh_type == SpineMeshType::Mesh3D =>
+                if {
+                    #[cfg(not(feature = "2d"))]
+                    {
+                        spine_settings.default_materials
+                    }
+                    #[cfg(feature = "2d")]
+                    {
+                        spine_settings.default_materials
+                            && spine_settings.mesh_type == SpineMeshType::Mesh3D
+                    }
+                } =>
             {
                 let mut material = material.unwrap_or(Self::Material {
                     unlit: true,

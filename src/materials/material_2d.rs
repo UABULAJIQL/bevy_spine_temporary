@@ -12,6 +12,9 @@ use bevy::shader::ShaderRef;
 use bevy::sprite::{AlphaMode2d, Material2d, Material2dKey};
 use rusty_spine::BlendMode;
 
+#[cfg(feature = "3d")]
+use crate::SpineMeshType;
+
 macro_rules! material {
     ($(#[$($attrss:tt)*])* $name:ident, $blend_mode:expr, $premultiplied_alpha:expr, $blend_state:expr) => {
         $(#[$($attrss)*])*
@@ -79,18 +82,30 @@ macro_rules! material {
                 renderable_data: super::SpineMaterialInfo,
                 params: &StaticSystemParam<Self::Params<'_, '_>>,
             ) -> Option<Self> {
-                let spine_settings = params.spine_settings_query.get(entity).copied().unwrap_or_default();
+                match params.spine_settings_query.get(entity) {
+                    Ok(spine_settings)
+                        if {
+                            #[cfg(not(feature = "3d"))]
+                            {
+                                spine_settings.default_materials
+                                    && renderable_data.blend_mode == $blend_mode
+                                    && renderable_data.premultiplied_alpha == $premultiplied_alpha
+                            }
+                            #[cfg(feature = "3d")]
+                            {
+                                spine_settings.mesh_type == SpineMeshType::Mesh2D
+                                    &&spine_settings.default_materials
+                                    && renderable_data.blend_mode == $blend_mode
+                                    && renderable_data.premultiplied_alpha == $premultiplied_alpha
+                            }
+                        } =>
+                    {
+                        let mut material = material.unwrap_or_default();
+                        material.image = renderable_data.texture;
 
-                if spine_settings.default_materials
-                    && renderable_data.blend_mode == $blend_mode
-                    && renderable_data.premultiplied_alpha == $premultiplied_alpha
-                {
-                    let mut material = material.unwrap_or_default();
-                    material.image = renderable_data.texture;
-
-                    Some(material)
-                } else {
-                    None
+                        Some(material)
+                    }
+                    _ => None,
                 }
             }
         }

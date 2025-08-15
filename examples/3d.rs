@@ -4,6 +4,9 @@ use bevy_spine::prelude::*;
 use bevy::input::mouse::MouseMotion;
 use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
 
+#[cfg(all(feature = "2d", feature = "3d"))]
+use bevy_spine::SpineMeshType;
+
 #[derive(Component)]
 pub struct Orbit {
     angle: f32,
