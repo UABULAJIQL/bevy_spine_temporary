@@ -8,7 +8,7 @@ use bevy::render::render_resource::{
     AsBindGroup, RenderPipelineDescriptor, SpecializedMeshPipelineError,
 };
 use bevy::shader::ShaderRef;
-use bevy::sprite::{AlphaMode2d, Material2d, Material2dKey, Material2dPlugin};
+use bevy::sprite_render::{AlphaMode2d, Material2d, Material2dKey, Material2dPlugin};
 use bevy_spine::SpineDrawer;
 use bevy_spine::materials::{DARK_COLOR_ATTRIBUTE, DARK_COLOR_SHADER_POSITION};
 use bevy_spine::materials::{SpineMaterial, SpineMaterialInfo, SpineMaterialPlugin};

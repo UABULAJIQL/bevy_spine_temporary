@@ -32,7 +32,7 @@ screen_pma_material = ["2d"]
 
 default_shader = []
 
-2d = ["bevy/bevy_sprite", "default_shader"]
+2d = ["bevy/bevy_sprite_render", "default_shader"]
 3d = ["bevy/bevy_pbr"]
 
 debug = []

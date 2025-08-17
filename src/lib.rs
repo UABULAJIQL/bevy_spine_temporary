@@ -34,7 +34,7 @@ use bevy::asset::load_internal_binary_asset;
 use materials::SHADER_HANDLE;
 
 #[cfg(feature = "2d")]
-use bevy::sprite::Material2dPlugin;
+use bevy::sprite_render::Material2dPlugin;
 
 #[cfg(all(
     feature = "2d",
