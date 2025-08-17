@@ -10,7 +10,20 @@ license-file = "LICENSE"
 exclude = ["assets/*"]
 
 [features]
-default = [
+default = ["default_2d_materials"]
+
+normal_material = ["2d", "default_shader"]
+additive_material = ["2d", "default_shader"]
+multiply_material = ["2d", "default_shader"]
+screen_material = ["2d", "default_shader"]
+normal_pma_material = ["2d", "default_shader"]
+additive_pma_material = ["2d", "default_shader"]
+multiply_pma_material = ["2d", "default_shader"]
+screen_pma_material = ["2d", "default_shader"]
+
+default_shader = []
+
+default_2d_materials = [
     "normal_material",
     "additive_material",
     "multiply_material",
@@ -19,21 +32,11 @@ default = [
     "additive_pma_material",
     "multiply_pma_material",
     "screen_pma_material",
-    # "3d",
 ]
 
-normal_material = ["2d"]
-additive_material = ["2d"]
-multiply_material = ["2d"]
-screen_material = ["2d"]
-normal_pma_material = ["2d"]
-additive_pma_material = ["2d"]
-multiply_pma_material = ["2d"]
-screen_pma_material = ["2d"]
+default_3d_material = ["3d"]
 
-default_shader = []
-
-2d = ["bevy/bevy_sprite", "default_shader"]
+2d = ["bevy/bevy_sprite"]
 3d = ["bevy/bevy_pbr"]
 
 debug = []

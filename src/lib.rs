@@ -22,7 +22,7 @@ use rusty_spine::{AnimationStateData, BoneHandle};
 
 use assets::{AtlasLoader, SkeletonJsonLoader};
 use materials::DARK_COLOR_ATTRIBUTE;
-use materials::{SpineMaterialInfo, SpineMaterialPlugin};
+use materials::SpineMaterialInfo;
 use textures::{
     SpineTexture, SpineTextureConfig, SpineTextureCreateEvent, SpineTextureDisposeEvent,
     SpineTextures,
@@ -30,54 +30,53 @@ use textures::{
 
 #[cfg(feature = "default_shader")]
 use bevy::asset::load_internal_binary_asset;
+
+#[cfg(any(
+    feature = "additive_material",
+    feature = "additive_pma_material",
+    feature = "multiply_material",
+    feature = "multiply_pma_material",
+    feature = "normal_material",
+    feature = "normal_pma_material",
+    feature = "screen_material",
+    feature = "screen_pma_material",
+))]
+use bevy::sprite::Material2dPlugin;
+
 #[cfg(feature = "default_shader")]
 use materials::SHADER_HANDLE;
 
-#[cfg(feature = "2d")]
-use bevy::sprite::Material2dPlugin;
-
-#[cfg(all(
-    feature = "2d",
+#[cfg(any(
+    feature = "default_3d_material",
     feature = "additive_material",
-))]
-use materials::material_2d::SpineAdditiveMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "additive_pma_material",
-))]
-use materials::material_2d::SpineAdditivePmaMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "multiply_material",
-))]
-use materials::material_2d::SpineMultiplyMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "multiply_pma_material",
-))]
-use materials::material_2d::SpineMultiplyPmaMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "normal_material",
-))]
-use materials::material_2d::SpineNormalMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "normal_pma_material",
-))]
-use materials::material_2d::SpineNormalPmaMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "screen_material",
-))]
-use materials::material_2d::SpineScreenMaterial;
-#[cfg(all(
-    feature = "2d",
     feature = "screen_pma_material",
 ))]
+use materials::SpineMaterialPlugin;
+
+#[cfg(feature = "additive_material")]
+use materials::material_2d::SpineAdditiveMaterial;
+#[cfg(feature = "additive_pma_material")]
+use materials::material_2d::SpineAdditivePmaMaterial;
+#[cfg(feature = "multiply_material")]
+use materials::material_2d::SpineMultiplyMaterial;
+#[cfg(feature = "multiply_pma_material")]
+use materials::material_2d::SpineMultiplyPmaMaterial;
+#[cfg(feature = "normal_material")]
+use materials::material_2d::SpineNormalMaterial;
+#[cfg(feature = "normal_pma_material")]
+use materials::material_2d::SpineNormalPmaMaterial;
+#[cfg(feature = "screen_material")]
+use materials::material_2d::SpineScreenMaterial;
+#[cfg(feature = "screen_pma_material")]
 use materials::material_2d::SpineScreenPmaMaterial;
 
-#[cfg(feature = "3d")]
+#[cfg(feature = "default_3d_material")]
 use materials::material_3d::Spine3DMaterial;
 
 pub use crate::assets::*;
@@ -146,7 +145,16 @@ pub struct SpinePlugin;
 
 impl Plugin for SpinePlugin {
     fn build(&self, app: &mut App) {
-        #[cfg(feature = "2d")]
+        #[cfg(any(
+            feature = "additive_material",
+            feature = "additive_pma_material",
+            feature = "multiply_material",
+            feature = "multiply_pma_material",
+            feature = "normal_material",
+            feature = "normal_pma_material",
+            feature = "screen_material",
+            feature = "screen_pma_material",
+        ))]
         app.add_plugins((
             #[cfg(feature = "normal_material")]
             Material2dPlugin::<SpineNormalMaterial>::default(),
@@ -184,7 +192,7 @@ impl Plugin for SpinePlugin {
             SpineMaterialPlugin::<SpineScreenPmaMaterial>::default(),
         ));
 
-        #[cfg(feature = "3d")]
+        #[cfg(feature = "default_3d_material")]
         app.add_plugins(SpineMaterialPlugin::<Spine3DMaterial>::default());
 
         app.add_plugins(SpineSyncPlugin::first())

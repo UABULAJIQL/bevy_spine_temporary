@@ -2,9 +2,19 @@
 //!
 //! To create a custom material for Spine, see [`SpineMaterial`].
 
-#[cfg(feature = "2d")]
+#[cfg(any(
+    feature = "additive_material",
+    feature = "additive_pma_material",
+    feature = "multiply_material",
+    feature = "multiply_pma_material",
+    feature = "normal_material",
+    feature = "normal_pma_material",
+    feature = "screen_material",
+    feature = "screen_pma_material",
+))]
 pub mod material_2d;
-#[cfg(feature = "3d")]
+
+#[cfg(feature = "default_3d_material")]
 pub mod material_3d;
 
 use std::marker::PhantomData;
