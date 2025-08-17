@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_spine::prelude::*;
 
 use bevy::input::mouse::MouseMotion;
-use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
+use bevy::window::{CursorGrabMode, PrimaryWindow};
 
 #[cfg(all(feature = "2d", feature = "3d"))]
 use bevy_spine::SpineMeshType;
@@ -94,26 +94,26 @@ fn on_spawn(
 }
 
 fn controls(
-    mut cursor_options: Single<&mut CursorOptions, With<PrimaryWindow>>,
+    mut window: Single<&mut Window, With<PrimaryWindow>>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut orbit_query: Query<(&mut Orbit, &mut Transform)>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
     if mouse_buttons.just_pressed(MouseButton::Left) {
-        cursor_options.grab_mode = CursorGrabMode::Locked;
-        cursor_options.visible = false;
+        window.cursor_options.grab_mode = CursorGrabMode::Locked;
+        window.cursor_options.visible = false;
     }
 
     if keys.just_pressed(KeyCode::Escape) {
-        cursor_options.grab_mode = CursorGrabMode::None;
-        cursor_options.visible = true;
+        window.cursor_options.grab_mode = CursorGrabMode::None;
+        window.cursor_options.visible = true;
     }
 
     let mut mouse_movement = Vec2::ZERO;
 
     for mouse_motion_event in mouse_motion_events.read() {
-        if cursor_options.grab_mode == CursorGrabMode::Locked {
+        if window.cursor_options.grab_mode == CursorGrabMode::Locked {
             mouse_movement += mouse_motion_event.delta;
         }
     }

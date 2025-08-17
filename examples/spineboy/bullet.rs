@@ -22,7 +22,7 @@ impl Plugin for BulletPlugin {
     }
 }
 
-#[derive(BufferedEvent)]
+#[derive(Event)]
 pub struct BulletSpawnEvent {
     pub position: Vec2,
     pub velocity: Vec2,

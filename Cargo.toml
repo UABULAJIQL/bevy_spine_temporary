@@ -33,17 +33,17 @@ screen_pma_material = ["2d"]
 
 default_shader = []
 
-2d = ["bevy/bevy_sprite_render", "default_shader"]
+2d = ["bevy/bevy_sprite", "default_shader"]
 3d = ["bevy/bevy_pbr"]
 
 debug = []
 
 [dependencies]
-glam = { version = "0.30", features = ["mint"] }
+glam = { version = "0.29", features = ["mint"] }
 thiserror = "2"
 
 [dependencies.bevy]
-git = "https://github.com/bevyengine/bevy"
+version = "0.16"
 default-features = false
 features = ["bevy_asset", "bevy_render"]
 
@@ -53,7 +53,7 @@ branch = "3.8"
 
 [dev-dependencies]
 lerp = "0.5"
-bevy = { git = "https://github.com/bevyengine/bevy", default-features = true }
+bevy = { version = "0.16", default-features = true }
 
 [workspace]
 members = ["ci"]
