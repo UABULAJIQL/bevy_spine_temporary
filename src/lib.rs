@@ -1056,7 +1056,7 @@ fn spine_update_meshes(
                     spine_2d_mesh,
                     mesh_type == SpineMeshType::Mesh2D,
                     Mesh2d(spine_mesh.handle.clone()),
-                    Mesh3d
+                    Mesh2d
                 );
 
                 apply_mesh!(

@@ -43,7 +43,7 @@ fn setup(
     commands.spawn((SpineBundle {
         skeleton: skeleton_handle.clone().into(),
         transform: Transform::from_xyz(-230., -130., 0.).with_scale(Vec3::ONE * 0.375),
-        ..Default::default()
+        ..default()
     },));
 
     // Spine with custom materials
@@ -54,9 +54,9 @@ fn setup(
             settings: SpineSettings {
                 default_materials: false,
                 drawer: SpineDrawer::Separated,
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
         MySpine,
     ));

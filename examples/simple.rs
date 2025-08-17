@@ -24,7 +24,7 @@ fn setup(
     commands.spawn(SpineBundle {
         skeleton: skeletons.add(skeleton).into(),
         transform: Transform::from_xyz(0., -200., 0.),
-        ..Default::default()
+        ..default()
     });
 }
 

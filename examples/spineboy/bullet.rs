@@ -40,7 +40,7 @@ fn bullet_spawn(mut commands: Commands, mut bullet_spawn_events: EventReader<Bul
                 Sprite {
                     color: Srgba::RED.into(),
                     custom_size: Some(Vec2::ONE * 16.),
-                    ..Default::default()
+                    ..default()
                 },
                 Transform::from_translation(event.position.extend(1.)),
             ))

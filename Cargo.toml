@@ -19,6 +19,7 @@ default = [
     "additive_pma_material",
     "multiply_pma_material",
     "screen_pma_material",
+    # "3d",
 ]
 
 normal_material = ["2d"]

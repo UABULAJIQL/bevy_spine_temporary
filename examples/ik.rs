@@ -36,7 +36,7 @@ fn setup(
         SpineBundle {
             transform: Transform::from_xyz(-200., -200., 0.).with_scale(Vec3::splat(0.5)),
             skeleton: skeletons.add(skeleton).into(),
-            ..Default::default()
+            ..default()
         },
         SpineSync,
     ));
