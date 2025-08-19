@@ -12,6 +12,8 @@ exclude = ["assets/*"]
 [features]
 default = ["default_2d_materials"]
 
+rayon = []
+
 normal_material = ["2d", "default_shader"]
 additive_material = ["2d", "default_shader"]
 multiply_material = ["2d", "default_shader"]

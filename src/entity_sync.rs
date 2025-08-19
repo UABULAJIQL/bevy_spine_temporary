@@ -144,18 +144,28 @@ pub fn spine_sync_entities<S: SpineSynchronizer>(
     mut bone_query: Query<(&mut Transform, &SpineBone)>,
     spine_query: Query<&Spine, With<S>>,
 ) {
-    for (mut bone_transform, bone) in bone_query.iter_mut() {
-        if let Ok(spine) = spine_query.get(bone.spine_entity) {
-            if let Some(bone) = bone.handle.get(&spine.skeleton) {
-                bone_transform.translation.x = bone.x();
-                bone_transform.translation.y = bone.y();
-                bone_transform.rotation =
-                    Quat::from_axis_angle(Vec3::Z, bone.rotation().to_radians());
-                bone_transform.scale.x = bone.scale_x();
-                bone_transform.scale.y = bone.scale_y();
-            }
+    {
+        #[cfg(not(feature = "rayon"))]
+        {
+            bone_query.iter_mut()
+        }
+        #[cfg(feature = "rayon")]
+        {
+            bone_query.par_iter_mut()
         }
     }
+    .for_each(|(mut transform, bone)| {
+        let Ok(spine) = spine_query.get(bone.spine_entity) else { return };
+        let Some(bone) = bone.handle.get(&spine.skeleton) else { return };
+
+        transform.translation.x = bone.x();
+        transform.translation.y = bone.y();
+
+        transform.rotation = Quat::from_axis_angle(Vec3::Z, bone.rotation().to_radians());
+
+        transform.scale.x = bone.scale_x();
+        transform.scale.y = bone.scale_y();
+    });
 }
 
 /// Synchronizes Spine skeleton bones to [`SpineBone`] transforms.
@@ -163,21 +173,34 @@ pub fn spine_sync_bones<S: SpineSynchronizer>(
     mut bone_query: Query<(&mut Transform, &SpineBone)>,
     mut spine_query: Query<&mut Spine, With<S>>,
 ) {
-    for (bone_transform, bone) in bone_query.iter_mut() {
-        if let Ok(mut spine) = spine_query.get_mut(bone.spine_entity) {
-            if let Some(mut bone) = bone.handle.get_mut(&mut spine.skeleton) {
-                bone.set_x(bone_transform.translation.x);
-                bone.set_y(bone_transform.translation.y);
-                let ang = bone_transform.rotation * Vec3::X;
-                bone.set_rotation(ang.y.atan2(ang.x).to_degrees());
-                bone.set_scale_x(bone_transform.scale.x);
-                bone.set_scale_y(bone_transform.scale.y);
-            }
+    for (transform, bone) in bone_query.iter_mut() {
+        let Ok(mut spine) = spine_query.get_mut(bone.spine_entity) else { continue };
+        let Some(mut bone) = bone.handle.get_mut(&mut spine.skeleton) else { continue };
+
+        bone.set_x(transform.translation.x);
+        bone.set_y(transform.translation.y);
+
+        let ang = transform.rotation * Vec3::X;
+
+        bone.set_rotation(ang.y.atan2(ang.x).to_degrees());
+
+        bone.set_scale_x(transform.scale.x);
+        bone.set_scale_y(transform.scale.y);
+    }
+
+    {
+        #[cfg(not(feature = "rayon"))]
+        {
+            spine_query.iter_mut()
+        }
+        #[cfg(feature = "rayon")]
+        {
+            spine_query.par_iter_mut()
         }
     }
-    for mut spine in spine_query.iter_mut() {
+    .for_each(|mut spine| {
         spine.0.skeleton.update_world_transform();
-    }
+    });
 }
 
 /// Synchronizes [`SpineBone`] transforms with the final, applied Spine bones transforms.
@@ -185,18 +208,28 @@ pub fn spine_sync_entities_applied<S: SpineSynchronizer>(
     mut bone_query: Query<(&mut Transform, &SpineBone)>,
     spine_query: Query<&Spine, With<S>>,
 ) {
-    for (mut bone_transform, bone) in bone_query.iter_mut() {
-        if let Ok(spine) = spine_query.get(bone.spine_entity) {
-            if let Some(bone) = bone.handle.get(&spine.skeleton) {
-                bone_transform.translation.x = bone.applied_x();
-                bone_transform.translation.y = bone.applied_y();
-                bone_transform.rotation =
-                    Quat::from_axis_angle(Vec3::Z, bone.applied_rotation().to_radians());
-                bone_transform.scale.x = bone.applied_scale_x();
-                bone_transform.scale.y = bone.applied_scale_y();
-            }
+    {
+        #[cfg(not(feature = "rayon"))]
+        {
+            bone_query.iter_mut()
+        }
+        #[cfg(feature = "rayon")]
+        {
+            bone_query.par_iter_mut()
         }
     }
+    .for_each(|(mut transform, bone)| {
+        let Ok(spine) = spine_query.get(bone.spine_entity) else { return };
+        let Some(bone) = bone.handle.get(&spine.skeleton) else { return };
+
+        transform.translation.x = bone.applied_x();
+        transform.translation.y = bone.applied_y();
+
+        transform.rotation = Quat::from_axis_angle(Vec3::Z, bone.applied_rotation().to_radians());
+
+        transform.scale.x = bone.applied_scale_x();
+        transform.scale.y = bone.applied_scale_y();
+    });
 }
 
 /// A [`Component`] which synchronizes child (bone) entities to to a [`Spine`] rig (see
