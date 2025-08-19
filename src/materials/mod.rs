@@ -100,8 +100,8 @@ fn update_materials<T: SpineMaterial>(
     mesh_query: Query<(Entity, &SpineMesh, Option<&T::MeshMaterial>)>,
     params: StaticSystemParam<T::Params<'_, '_>>,
 ) {
-    for (mesh_entity, spine_mesh, material_handle) in mesh_query.iter() {
-        let SpineMeshState::Renderable { info: data } = spine_mesh.state.clone() else { continue };
+    for (mesh_entity, spine_mesh, material_handle) in mesh_query {
+        let SpineMeshState::Renderable { info } = spine_mesh.state.clone() else { continue };
 
         if let Some((material, handle)) =
             material_handle.and_then(|handle| materials.get_mut(handle.clone()).zip(Some(handle)))
@@ -109,7 +109,7 @@ fn update_materials<T: SpineMaterial>(
             if let Some(new_material) = T::update(
                 Some(material.clone()),
                 spine_mesh.spine_entity,
-                data,
+                info,
                 &params,
             ) {
                 *material = new_material;
@@ -120,7 +120,12 @@ fn update_materials<T: SpineMaterial>(
                     entity_commands.remove::<T::MeshMaterial>();
                 }
             }
-        } else if let Some(material) = T::update(None, spine_mesh.spine_entity, data, &params) {
+        } else if let Some(material) = T::update(
+            None, //
+            spine_mesh.spine_entity,
+            info,
+            &params,
+        ) {
             let handle = materials.add(material);
 
             if let Ok(mut entity_commands) = commands.get_entity(mesh_entity) {

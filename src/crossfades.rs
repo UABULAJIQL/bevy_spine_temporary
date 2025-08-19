@@ -45,8 +45,8 @@ impl Crossfades {
     }
 
     pub(crate) fn apply(&self, animation_state_data: &mut AnimationStateData) {
-        for ((from, to), mix_duration) in self.mix_durations.iter() {
-            animation_state_data.set_mix_by_name(from, to, *mix_duration);
+        for ((from, to), &mix_duration) in self.mix_durations.iter() {
+            animation_state_data.set_mix_by_name(from, to, mix_duration);
         }
     }
 }

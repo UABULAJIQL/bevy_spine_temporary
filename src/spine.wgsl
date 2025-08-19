@@ -30,10 +30,7 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
     out.uv = vertex.uv;
     var model = mesh_functions::get_world_from_local(vertex.instance_index);
-    out.world_position = mesh_functions::mesh2d_position_local_to_world(
-        model,
-        vec4<f32>(vertex.position, 1.0)
-    );
+    out.world_position = mesh_functions::mesh2d_position_local_to_world(model, vec4<f32>(vertex.position, 1.0));
     out.position = mesh_functions::mesh2d_position_world_to_clip(out.world_position);
     out.world_normal = mesh_functions::mesh2d_normal_local_to_world(vertex.normal, vertex.instance_index);
     out.color = vertex.color;
@@ -47,9 +44,7 @@ var texture: texture_2d<f32>;
 var texture_sampler: sampler;
 
 @fragment
-fn fragment(
-    input: VertexOutput,
-) -> @location(0) vec4<f32> {
+fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
     let tex_color = textureSample(texture, texture_sampler, input.uv);
     var color = vec4(
         ((tex_color.a - 1.0) * input.dark_color.a + 1.0 - tex_color.rgb) * input.dark_color.rgb + tex_color.rgb * input.color.rgb,
