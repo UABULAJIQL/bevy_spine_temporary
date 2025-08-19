@@ -36,7 +36,7 @@ default_2d_materials = [
 
 default_3d_material = ["3d"]
 
-2d = ["bevy/bevy_sprite"]
+2d = ["bevy/bevy_sprite_render"]
 3d = ["bevy/bevy_pbr"]
 
 debug = []
