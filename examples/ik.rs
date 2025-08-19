@@ -97,7 +97,7 @@ fn ik(
             .get(crosshair_bone.parent.as_ref().unwrap().entity)
             .unwrap();
 
-        crosshair_transform.translation = (parent_global_transform.compute_matrix().inverse()
+        crosshair_transform.translation = (parent_global_transform.to_matrix().inverse()
             * Vec4::new(cursor_position.x, cursor_position.y, 0., 1.))
         .truncate();
     }

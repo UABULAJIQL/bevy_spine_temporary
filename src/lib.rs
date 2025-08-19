@@ -9,8 +9,8 @@ use std::sync::{Arc, Mutex};
 use bevy::prelude::*;
 
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
+use bevy::mesh::{Indices, MeshVertexAttribute};
 use bevy::platform::collections::HashMap;
-use bevy::render::mesh::{Indices, MeshVertexAttribute};
 use bevy::render::render_resource::{PrimitiveTopology, VertexFormat};
 use rusty_spine::atlas::{AtlasFilter, AtlasWrap};
 use rusty_spine::controller::SkeletonControllerSettings;
@@ -40,7 +40,7 @@ use bevy::asset::load_internal_binary_asset;
     feature = "screen_material",
     feature = "screen_pma_material",
 ))]
-use bevy::sprite::Material2dPlugin;
+use bevy::sprite_render::Material2dPlugin;
 
 #[cfg(feature = "default_shader")]
 use materials::SHADER_HANDLE;
@@ -518,7 +518,7 @@ pub struct SpineBundle {
 ///
 /// For convenience, systems receiving this event can be added to the [`SpineSet::OnReady`] set to
 /// receive this after events are sent, but before the first [`SkeletonController`] update.
-#[derive(Debug, Clone, Event)]
+#[derive(Debug, Clone, BufferedEvent)]
 pub struct SpineReadyEvent {
     /// The entity containing the [`Spine`] component.
     pub entity: Entity,
@@ -547,7 +547,7 @@ pub struct SpineReadyEvent {
 ///     }
 /// }
 /// ```
-#[derive(Debug, Clone, Event)]
+#[derive(Debug, Clone, BufferedEvent)]
 pub enum SpineEvent {
     Start {
         entity: Entity,

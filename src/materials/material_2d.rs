@@ -2,13 +2,14 @@ use bevy::prelude::*;
 
 use bevy::asset::Asset;
 use bevy::ecs::system::StaticSystemParam;
+use bevy::mesh::MeshVertexBufferLayoutRef;
 use bevy::reflect::TypePath;
-use bevy::render::mesh::MeshVertexBufferLayoutRef;
 use bevy::render::render_resource::{
     AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState, RenderPipelineDescriptor,
-    ShaderRef, SpecializedMeshPipelineError,
+    SpecializedMeshPipelineError,
 };
-use bevy::sprite::{AlphaMode2d, Material2d, Material2dKey};
+use bevy::shader::ShaderRef;
+use bevy::sprite_render::{AlphaMode2d, Material2d, Material2dKey};
 use rusty_spine::BlendMode;
 
 #[cfg(feature = "3d")]

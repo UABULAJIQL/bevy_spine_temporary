@@ -42,11 +42,11 @@ default_3d_material = ["3d"]
 debug = []
 
 [dependencies]
-glam = { version = "0.29", features = ["mint"] }
+glam = { version = "0.30", features = ["mint"] }
 thiserror = "2"
 
 [dependencies.bevy]
-version = "0.16"
+git = "https://github.com/bevyengine/bevy"
 default-features = false
 features = ["bevy_asset", "bevy_render"]
 
@@ -56,7 +56,7 @@ branch = "3.8"
 
 [dev-dependencies]
 lerp = "0.5"
-bevy = { version = "0.16", default-features = true }
+bevy = { git = "https://github.com/bevyengine/bevy", default-features = true }
 
 [workspace]
 members = ["ci"]

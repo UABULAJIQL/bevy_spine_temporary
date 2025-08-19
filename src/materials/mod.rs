@@ -22,9 +22,9 @@ use std::marker::PhantomData;
 use bevy::prelude::*;
 
 #[cfg(feature = "default_shader")]
-use bevy::asset::weak_handle;
+use bevy::asset::uuid_handle;
 use bevy::ecs::system::{StaticSystemParam, SystemParam};
-use bevy::render::mesh::MeshVertexAttribute;
+use bevy::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
 use rusty_spine::BlendMode;
 
@@ -151,4 +151,4 @@ pub const DARK_COLOR_ATTRIBUTE: MeshVertexAttribute = MeshVertexAttribute::new(
 );
 
 #[cfg(feature = "default_shader")]
-pub const SHADER_HANDLE: Handle<Shader> = weak_handle!("38b42512-1b99-43ed-ad09-6f36bb4ca3f9");
+pub const SHADER_HANDLE: Handle<Shader> = uuid_handle!("38b42512-1b99-43ed-ad09-6f36bb4ca3f9");

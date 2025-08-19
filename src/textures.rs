@@ -35,7 +35,7 @@ pub(crate) struct SpineTextures {
 /// An [`Event`] fired for each texture loaded by Spine.
 ///
 /// Sent in [`SpineSystem::Load`](`crate::SpineSystem::Load`).
-#[derive(Debug, Clone, Event)]
+#[derive(Debug, Clone, BufferedEvent)]
 pub struct SpineTextureCreateEvent {
     pub path: String,
     pub handle: Handle<Image>,
@@ -46,7 +46,7 @@ pub struct SpineTextureCreateEvent {
 /// An [`Event`] fired for each texture disposed, after [`SpineTextureCreateEvent`].
 ///
 /// Sent in [`SpineSystem::Load`](`crate::SpineSystem::Load`).
-#[derive(Debug, Clone, Event)]
+#[derive(Debug, Clone, BufferedEvent)]
 pub struct SpineTextureDisposeEvent {
     pub path: String,
     pub handle: Handle<Image>,
