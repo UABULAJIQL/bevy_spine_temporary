@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_spine::prelude::*;
 
+use bevy_spine::AtlasSettings;
+
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, SpinePlugin))
@@ -18,7 +20,10 @@ fn setup(
 
     let skeleton = SkeletonData::new_from_json(
         asset_server.load("spineboy/export/spineboy-pro.json"),
-        asset_server.load("spineboy/export/spineboy.atlas"),
+        asset_server.load_with_settings(
+            "spineboy/export/spineboy-pma.atlas",
+            |settings: &mut AtlasSettings| settings.premultiplied_alpha = true,
+        ),
     );
 
     commands.spawn(SpineBundle {

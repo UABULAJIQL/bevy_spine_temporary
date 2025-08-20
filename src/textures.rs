@@ -20,11 +20,11 @@ struct SpineTextureInternal {
 
 #[derive(Debug, Clone, Copy)]
 pub struct SpineTextureConfig {
-    pub premultiplied_alpha: bool,
     pub min_filter: AtlasFilter,
     pub mag_filter: AtlasFilter,
     pub u_wrap: AtlasWrap,
     pub v_wrap: AtlasWrap,
+    pub premultiplied_alpha: bool,
 }
 
 #[derive(Resource)]
@@ -70,13 +70,14 @@ impl SpineTextures {
                 path: path.to_owned(),
                 atlas_address: page.atlas().c_ptr() as usize,
                 config: SpineTextureConfig {
-                    premultiplied_alpha: false, // TODO
                     min_filter: page.min_filter(),
                     mag_filter: page.mag_filter(),
                     u_wrap: page.u_wrap(),
                     v_wrap: page.v_wrap(),
+                    premultiplied_alpha: false,
                 },
             });
+
             page.renderer_object().set(SpineTexture(path.to_owned()));
         });
 
@@ -105,38 +106,43 @@ impl SpineTextures {
     ) {
         let mut data = self.data.lock().unwrap();
 
-        while let Some(texture) = data.remember.pop() {
-            let handle = asset_server.load(&texture.path);
+        while let Some(SpineTextureInternal {
+            path,
+            atlas_address,
+            mut config,
+        }) = data.remember.pop()
+        {
+            let handle = asset_server.load(&path);
 
             // if none, the atlas was already deleted before getting here
-            if let Some(atlas) = find_matching_atlas(atlases, texture.atlas_address) {
-                data.handles.push((texture.path.clone(), handle.clone()));
+            if let Some((
+                atlas,
+                &Atlas {
+                    premultiplied_alpha,
+                    ..
+                },
+            )) = atlases
+                .iter()
+                .find(|(_, atlas)| atlas.atlas.c_ptr() as usize == atlas_address)
+            {
+                config.premultiplied_alpha = premultiplied_alpha;
 
+                data.handles.push((path.clone(), handle.clone()));
                 create_events.write(SpineTextureCreateEvent {
-                    path: texture.path,
-                    atlas,
+                    path,
                     handle,
-                    config: texture.config,
+                    atlas,
+                    config,
                 });
             }
         }
 
-        while let Some(texture_path) = data.forget.pop() {
-            if let Some(index) = data.handles.iter().position(|i| i.0 == texture_path) {
-                dispose_events.write(SpineTextureDisposeEvent {
-                    path: texture_path,
-                    handle: data.handles[index].1.clone(),
-                });
+        while let Some(path) = data.forget.pop() {
+            if let Some(index) = data.handles.iter().position(|handle| handle.0 == path) {
+                let (_, handle) = data.handles.swap_remove(index);
 
-                data.handles.remove(index);
+                dispose_events.write(SpineTextureDisposeEvent { path, handle });
             }
         }
     }
-}
-
-fn find_matching_atlas(atlases: &Assets<Atlas>, atlas_address: usize) -> Option<AssetId<Atlas>> {
-    atlases
-        .iter()
-        .find(|(_, atlas)| atlas.atlas.c_ptr() as usize == atlas_address)
-        .map(|(atlas_handle, _)| atlas_handle)
 }

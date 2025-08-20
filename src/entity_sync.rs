@@ -1,4 +1,6 @@
-use std::{fmt::Debug, hash::Hash, marker::PhantomData};
+use std::fmt::Debug;
+use std::hash::Hash;
+use std::marker::PhantomData;
 
 use bevy::prelude::*;
 
@@ -141,20 +143,10 @@ impl<T: SpineSynchronizer, A: SystemSet + Copy> Plugin for SpineSynchronizerPlug
 
 /// Synchronizes [`SpineBone`] transforms to the Spine skeleton bone transforms.
 pub fn spine_sync_entities<S: SpineSynchronizer>(
-    mut bone_query: Query<(&mut Transform, &SpineBone)>,
+    bone_query: Query<(&mut Transform, &SpineBone)>,
     spine_query: Query<&Spine, With<S>>,
 ) {
-    {
-        #[cfg(not(feature = "rayon"))]
-        {
-            bone_query.iter_mut()
-        }
-        #[cfg(feature = "rayon")]
-        {
-            bone_query.par_iter_mut()
-        }
-    }
-    .for_each(|(mut transform, bone)| {
+    for (mut transform, bone) in bone_query {
         let Ok(spine) = spine_query.get(bone.spine_entity) else { return };
         let Some(bone) = bone.handle.get(&spine.skeleton) else { return };
 
@@ -165,15 +157,15 @@ pub fn spine_sync_entities<S: SpineSynchronizer>(
 
         transform.scale.x = bone.scale_x();
         transform.scale.y = bone.scale_y();
-    });
+    }
 }
 
 /// Synchronizes Spine skeleton bones to [`SpineBone`] transforms.
 pub fn spine_sync_bones<S: SpineSynchronizer>(
-    mut bone_query: Query<(&mut Transform, &SpineBone)>,
+    bone_query: Query<(&Transform, &SpineBone)>,
     mut spine_query: Query<&mut Spine, With<S>>,
 ) {
-    for (transform, bone) in bone_query.iter_mut() {
+    for (transform, bone) in bone_query {
         let Ok(mut spine) = spine_query.get_mut(bone.spine_entity) else { continue };
         let Some(mut bone) = bone.handle.get_mut(&mut spine.skeleton) else { continue };
 
@@ -188,37 +180,17 @@ pub fn spine_sync_bones<S: SpineSynchronizer>(
         bone.set_scale_y(transform.scale.y);
     }
 
-    {
-        #[cfg(not(feature = "rayon"))]
-        {
-            spine_query.iter_mut()
-        }
-        #[cfg(feature = "rayon")]
-        {
-            spine_query.par_iter_mut()
-        }
-    }
-    .for_each(|mut spine| {
+    for mut spine in spine_query {
         spine.0.skeleton.update_world_transform();
-    });
+    }
 }
 
 /// Synchronizes [`SpineBone`] transforms with the final, applied Spine bones transforms.
 pub fn spine_sync_entities_applied<S: SpineSynchronizer>(
-    mut bone_query: Query<(&mut Transform, &SpineBone)>,
+    bone_query: Query<(&mut Transform, &SpineBone)>,
     spine_query: Query<&Spine, With<S>>,
 ) {
-    {
-        #[cfg(not(feature = "rayon"))]
-        {
-            bone_query.iter_mut()
-        }
-        #[cfg(feature = "rayon")]
-        {
-            bone_query.par_iter_mut()
-        }
-    }
-    .for_each(|(mut transform, bone)| {
+    for (mut transform, bone) in bone_query {
         let Ok(spine) = spine_query.get(bone.spine_entity) else { return };
         let Some(bone) = bone.handle.get(&spine.skeleton) else { return };
 
@@ -229,7 +201,7 @@ pub fn spine_sync_entities_applied<S: SpineSynchronizer>(
 
         transform.scale.x = bone.applied_scale_x();
         transform.scale.y = bone.applied_scale_y();
-    });
+    }
 }
 
 /// A [`Component`] which synchronizes child (bone) entities to to a [`Spine`] rig (see

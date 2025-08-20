@@ -1,10 +1,12 @@
-use std::{path::Path, sync::Arc};
+use std::path::Path;
+use std::sync::Arc;
 
 use bevy::prelude::*;
 
 use bevy::asset::{AssetLoader, LoadContext, io::Reader};
 use bevy::reflect::TypePath;
 use rusty_spine::SpineError;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -21,6 +23,12 @@ pub enum SpineLoaderError {
 #[derive(Asset, Debug, TypePath)]
 pub struct Atlas {
     pub atlas: Arc<rusty_spine::Atlas>,
+    pub premultiplied_alpha: bool,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct AtlasSettings {
+    pub premultiplied_alpha: bool,
 }
 
 #[derive(Default)]
@@ -28,22 +36,25 @@ pub(crate) struct AtlasLoader;
 
 impl AssetLoader for AtlasLoader {
     type Asset = Atlas;
-    type Settings = ();
+    type Settings = AtlasSettings;
     type Error = SpineLoaderError;
 
     async fn load(
         &self,
         reader: &mut dyn Reader,
-        _settings: &Self::Settings,
+        settings: &Self::Settings,
         load_context: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
-        let mut bytes = Vec::new();
-        reader.read_to_end(&mut bytes).await?;
+        let mut data = Vec::new();
+
+        reader.read_to_end(&mut data).await?;
+
         Ok(Atlas {
             atlas: Arc::new(rusty_spine::Atlas::new(
-                &bytes,
-                load_context.path().parent().unwrap_or(Path::new("")),
+                &data,
+                load_context.path().parent().unwrap_or(Path::new("")), // TODO: test if bevy 0.16 give the path with Source ID
             )?),
+            premultiplied_alpha: settings.premultiplied_alpha,
         })
     }
 
@@ -71,8 +82,8 @@ impl AssetLoader for SkeletonJsonLoader {
     async fn load(
         &self,
         reader: &mut dyn Reader,
-        _settings: &Self::Settings,
-        _load_context: &mut LoadContext<'_>,
+        _: &Self::Settings,
+        _: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
@@ -105,8 +116,8 @@ impl AssetLoader for SkeletonBinaryLoader {
     async fn load(
         &self,
         reader: &mut dyn Reader,
-        _settings: &Self::Settings,
-        _load_context: &mut LoadContext<'_>,
+        _: &Self::Settings,
+        _: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
@@ -129,6 +140,7 @@ pub struct SkeletonData {
     pub atlas_handle: Handle<Atlas>,
     pub kind: SkeletonDataKind,
     pub status: SkeletonDataStatus,
+    pub premultiplied_alpha: bool,
 }
 
 #[derive(Debug)]
@@ -178,6 +190,7 @@ impl SkeletonData {
             atlas_handle: atlas,
             kind: SkeletonDataKind::JsonFile(json),
             status: SkeletonDataStatus::Loading,
+            premultiplied_alpha: false,
         }
     }
 
@@ -214,6 +227,7 @@ impl SkeletonData {
             atlas_handle: atlas,
             kind: SkeletonDataKind::BinaryFile(binary),
             status: SkeletonDataStatus::Loading,
+            premultiplied_alpha: false,
         }
     }
 

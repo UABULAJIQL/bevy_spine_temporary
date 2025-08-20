@@ -31,6 +31,7 @@ pub fn test_app() -> App {
 
 pub fn test_app_with_spineboy() -> App {
     let mut app = test_app();
+
     app.add_systems(
         Startup,
         |mut commands: Commands,
