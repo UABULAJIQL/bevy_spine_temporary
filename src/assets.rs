@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::sync::Arc;
 
 use bevy::prelude::*;
@@ -52,7 +51,11 @@ impl AssetLoader for AtlasLoader {
         Ok(Atlas {
             atlas: Arc::new(rusty_spine::Atlas::new(
                 &data,
-                load_context.path().parent().unwrap_or(Path::new("")), // TODO: test if bevy 0.16 give the path with Source ID
+                load_context
+                    .asset_path()
+                    .parent()
+                    .map(|path| path.to_string())
+                    .unwrap_or_default(),
             )?),
             premultiplied_alpha: settings.premultiplied_alpha,
         })
