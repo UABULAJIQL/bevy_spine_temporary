@@ -22,7 +22,7 @@ fn setup(
         asset_server.load("spineboy/export/spineboy-pro.json"),
         asset_server.load_with_settings(
             "spineboy/export/spineboy-pma.atlas",
-            |settings: &mut AtlasSettings| settings.premultiplied_alpha = true,
+            AtlasSettings::enable_premultiplied_alpha,
         ),
     );
 

@@ -30,6 +30,12 @@ pub struct AtlasSettings {
     pub premultiplied_alpha: bool,
 }
 
+impl AtlasSettings {
+    pub fn enable_premultiplied_alpha(&mut self) {
+        self.premultiplied_alpha = true;
+    }
+}
+
 #[derive(Default)]
 pub(crate) struct AtlasLoader;
 
