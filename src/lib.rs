@@ -108,6 +108,7 @@ pub enum SpineSystem {
     UpdateMeshes,
     /// Updates all Spine materials.
     UpdateMaterials,
+    #[cfg(feature = "pma_fix")]
     /// Adjusts Spine textures to render properly.
     AdjustSpineTextures,
 }
@@ -234,11 +235,13 @@ impl Plugin for SpinePlugin {
                         .after(SpineSystem::Spawn)
                         .before(SpineSystem::Ready),
                 ),
-            )
-            .add_systems(
-                PostUpdate,
-                adjust_spine_textures.in_set(SpineSystem::AdjustSpineTextures),
             );
+
+        #[cfg(feature = "pma_fix")]
+        app.add_systems(
+            PostUpdate,
+            adjust_spine_textures.in_set(SpineSystem::AdjustSpineTextures),
+        );
 
         #[cfg(feature = "default_shader")]
         load_internal_binary_asset!(app, SHADER_HANDLE, "spine.wgsl", |bytes, path: String| {
@@ -1204,6 +1207,7 @@ struct FixSpineTextures {
     handles: Vec<(Handle<Image>, SpineTextureConfig)>,
 }
 
+#[cfg(feature = "pma_fix")]
 /// Adjusts Spine textures to render properly.
 fn adjust_spine_textures(
     mut local: Local<FixSpineTextures>,
