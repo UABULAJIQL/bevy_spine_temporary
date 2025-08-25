@@ -10,7 +10,7 @@ use bevy::render::render_resource::{
 };
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{AlphaMode2d, Material2d, Material2dKey};
-use rusty_spine::BlendMode;
+use spine::BlendMode;
 
 #[cfg(feature = "3d")]
 use crate::SpineMeshType;

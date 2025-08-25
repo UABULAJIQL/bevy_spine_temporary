@@ -4,8 +4,8 @@ use bevy::prelude::*;
 
 use bevy::asset::{AssetLoader, LoadContext, io::Reader};
 use bevy::reflect::TypePath;
-use rusty_spine::SpineError;
 use serde::{Deserialize, Serialize};
+use spine::SpineError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -16,12 +16,12 @@ pub enum SpineLoaderError {
     Spine(#[from] SpineError),
 }
 
-/// Bevy asset for [`rusty_spine::Atlas`], loaded from `.atlas` files.
+/// Bevy asset for [`spine::Atlas`], loaded from `.atlas` files.
 ///
 /// For loading a complete skeleton, see [`SkeletonData`].
 #[derive(Asset, Debug, TypePath)]
 pub struct Atlas {
-    pub atlas: Arc<rusty_spine::Atlas>,
+    pub atlas: Arc<spine::Atlas>,
     pub premultiplied_alpha: bool,
 }
 
@@ -55,7 +55,7 @@ impl AssetLoader for AtlasLoader {
         reader.read_to_end(&mut data).await?;
 
         Ok(Atlas {
-            atlas: Arc::new(rusty_spine::Atlas::new(
+            atlas: Arc::new(spine::Atlas::new(
                 &data,
                 load_context
                     .asset_path()
@@ -72,7 +72,7 @@ impl AssetLoader for AtlasLoader {
     }
 }
 
-/// Bevy asset for [`rusty_spine::SkeletonJson`], loaded from `.json` files.
+/// Bevy asset for [`spine::SkeletonJson`], loaded from `.json` files.
 ///
 /// For loading a complete skeleton, see [`SkeletonData`].
 #[derive(Asset, Debug, TypePath)]
@@ -106,7 +106,7 @@ impl AssetLoader for SkeletonJsonLoader {
     }
 }
 
-/// Bevy asset for [`rusty_spine::SkeletonBinary`], loaded from `.skel` files.
+/// Bevy asset for [`spine::SkeletonBinary`], loaded from `.skel` files.
 ///
 /// For loading a complete skeleton, see [`SkeletonData`].
 #[derive(Asset, Debug, TypePath)]
@@ -140,7 +140,7 @@ impl AssetLoader for SkeletonBinaryLoader {
     }
 }
 
-/// Bevy asset for [`rusty_spine::SkeletonData`], loaded asynchronously from [`Atlas`] and a
+/// Bevy asset for [`spine::SkeletonData`], loaded asynchronously from [`Atlas`] and a
 /// skeleton (either [`SkeletonJson`] or [`SkeletonBinary`]).
 ///
 /// See [`SkeletonData::new_from_json`] or [`SkeletonData::new_from_binary`].
@@ -160,7 +160,7 @@ pub enum SkeletonDataKind {
 
 #[derive(Debug)]
 pub enum SkeletonDataStatus {
-    Loaded(Arc<rusty_spine::SkeletonData>),
+    Loaded(Arc<spine::SkeletonData>),
     Loading,
     Failed,
 }
@@ -244,7 +244,7 @@ impl SkeletonData {
         matches!(&self.status, SkeletonDataStatus::Loaded(..))
     }
 
-    pub fn skeleton_data(&self) -> Option<Arc<rusty_spine::SkeletonData>> {
+    pub fn skeleton_data(&self) -> Option<Arc<spine::SkeletonData>> {
         match &self.status {
             SkeletonDataStatus::Loaded(skeleton_data) => Some(skeleton_data.clone()),
             _ => None,

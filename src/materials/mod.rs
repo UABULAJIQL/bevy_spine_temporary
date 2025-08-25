@@ -26,7 +26,7 @@ use bevy::asset::uuid_handle;
 use bevy::ecs::system::{StaticSystemParam, SystemParam};
 use bevy::mesh::MeshVertexAttribute;
 use bevy::render::render_resource::VertexFormat;
-use rusty_spine::BlendMode;
+use spine::BlendMode;
 
 use crate::{SpineMesh, SpineMeshState, SpineSettings, SpineSystem};
 

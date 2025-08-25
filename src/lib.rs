@@ -12,12 +12,12 @@ use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerD
 use bevy::mesh::{Indices, MeshVertexAttribute};
 use bevy::platform::collections::HashMap;
 use bevy::render::render_resource::{PrimitiveTopology, VertexFormat};
-use rusty_spine::atlas::{AtlasFilter, AtlasWrap};
-use rusty_spine::controller::SkeletonControllerSettings;
-use rusty_spine::controller::{SkeletonCombinedRenderable, SkeletonRenderable};
-use rusty_spine::draw::CullDirection;
-use rusty_spine::{AnimationEvent, Skeleton};
-use rusty_spine::{AnimationStateData, BoneHandle};
+use spine::atlas::{AtlasFilter, AtlasWrap};
+use spine::controller::SkeletonControllerSettings;
+use spine::controller::{SkeletonCombinedRenderable, SkeletonRenderable};
+use spine::draw::CullDirection;
+use spine::{AnimationEvent, Skeleton};
+use spine::{AnimationStateData, BoneHandle};
 
 use assets::{AtlasLoader, SkeletonJsonLoader};
 use materials::DARK_COLOR_ATTRIBUTE;
@@ -82,12 +82,12 @@ pub use crate::assets::*;
 pub use crate::crossfades::Crossfades;
 pub use crate::entity_sync::*;
 pub use crate::handle::*;
-pub use crate::rusty_spine::Color;
+pub use crate::spine::Color;
 
-/// See [`rusty_spine`] docs for more info.
-pub use rusty_spine::controller::SkeletonController;
+/// See [`spine`] docs for more info.
+pub use spine::controller::SkeletonController;
 
-pub use rusty_spine;
+pub use spine;
 
 /// System sets for Spine systems.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, SystemSet)]
@@ -619,7 +619,7 @@ fn spine_load(
                 match kind {
                     SkeletonDataKind::JsonFile(json_handle) => {
                         let Some(json) = jsons.get(json_handle) else { continue };
-                        let skeleton_json = rusty_spine::SkeletonJson::new(atlas.atlas.clone());
+                        let skeleton_json = spine::SkeletonJson::new(atlas.atlas.clone());
 
                         match skeleton_json.read_skeleton_data(&json.json) {
                             Ok(skeleton_data) => {
@@ -636,7 +636,7 @@ fn spine_load(
                     }
                     SkeletonDataKind::BinaryFile(binary_handle) => {
                         let Some(binary) = binaries.get(binary_handle) else { continue };
-                        let skeleton_binary = rusty_spine::SkeletonBinary::new(atlas.atlas.clone());
+                        let skeleton_binary = spine::SkeletonBinary::new(atlas.atlas.clone());
                         match skeleton_binary.read_skeleton_data(&binary.binary) {
                             Ok(skeleton_data) => {
                                 *status = SkeletonDataStatus::Loaded(Arc::new(skeleton_data));
@@ -1321,5 +1321,5 @@ pub mod prelude {
         SpineReadyEvent, SpineSet, SpineSettings, SpineSync, SpineSyncSet, SpineSyncSystem,
         SpineSystem,
     };
-    pub use rusty_spine::{BoneHandle, SlotHandle};
+    pub use spine::{BoneHandle, SlotHandle};
 }

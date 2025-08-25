@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 use bevy::platform::collections::HashMap;
-use rusty_spine::AnimationStateData;
+use spine::AnimationStateData;
 
-/// Crossfade data to apply to [`rusty_spine::AnimationStateData`]. Allows automated crossfading
+/// Crossfade data to apply to [`spine::AnimationStateData`]. Allows automated crossfading
 /// between animations.
 ///
 /// Apply to a [`SpineBundle`](`crate::SpineBundle`) upon creation:

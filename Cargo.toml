@@ -51,7 +51,8 @@ git = "https://github.com/bevyengine/bevy"
 default-features = false
 features = ["bevy_asset", "bevy_render"]
 
-[dependencies.rusty_spine]
+[dependencies.spine]
+package = "rusty_spine"
 git = "https://github.com/supdrewin/rusty_spine"
 branch = "3.8"
 
