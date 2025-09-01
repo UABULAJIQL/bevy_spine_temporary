@@ -14,7 +14,6 @@ use bevy::platform::collections::HashMap;
 use bevy::render::render_resource::{PrimitiveTopology, VertexFormat};
 use spine::atlas::{AtlasFilter, AtlasWrap};
 use spine::controller::SkeletonControllerSettings;
-use spine::controller::{SkeletonCombinedRenderable, SkeletonRenderable};
 use spine::draw::CullDirection;
 use spine::{AnimationEvent, Skeleton};
 use spine::{AnimationStateData, BoneHandle};
@@ -925,11 +924,7 @@ fn spine_update_animation(
     }
 }
 
-pub enum SkeletonRenderableKind {
-    Simple(Vec<SkeletonRenderable>),
-    Combined(Vec<SkeletonCombinedRenderable>),
-}
-
+// TODO: mesh & fix loop
 #[allow(clippy::type_complexity)]
 fn spine_update_meshes(
     asset_server: Res<AssetServer>,
@@ -964,76 +959,12 @@ fn spine_update_meshes(
             ..
         } = settings.cloned().unwrap_or_default();
 
-        let (len, mut renderables) = match drawer {
-            SpineDrawer::Combined => {
-                let renderables = spine.0.combined_renderables();
-
-                (
-                    renderables.len(),
-                    SkeletonRenderableKind::Combined(renderables),
-                )
-            }
-            SpineDrawer::Separated => {
-                let renderables = spine.0.renderables();
-
-                (
-                    renderables.len(),
-                    SkeletonRenderableKind::Simple(renderables),
-                )
-            }
-            SpineDrawer::None => continue,
-        };
-
-        let mut children = children.iter();
-
-        for i in 0..len {
-            let Some(child) = children.next() else { break };
-
-            #[cfg(all(feature = "2d", not(feature = "3d")))]
-            let Ok((
-                spine_mesh_entity, //
-                mut spine_mesh,
-                spine_2d_mesh,
-            )) = mesh_query.get_mut(child)
-            else {
-                continue;
-            };
-
-            #[cfg(all(feature = "3d", not(feature = "2d")))]
-            let Ok((
-                spine_mesh_entity, //
-                mut spine_mesh,
-                spine_3d_mesh,
-            )) = mesh_query.get_mut(child)
-            else {
-                continue;
-            };
-
-            #[cfg(all(feature = "2d", feature = "3d"))]
-            let Ok((
-                spine_mesh_entity, //
-                mut spine_mesh,
-                spine_2d_mesh,
-                spine_3d_mesh,
-            )) = mesh_query.get_mut(child)
-            else {
-                continue;
-            };
-
-            let (
-                slot_index,
-                attachment_renderer_object,
-                vertices,
-                indices,
-                uvs,
-                colors,
-                dark_colors,
-                blend_mode,
-                premultiplied_alpha,
-            ) = match &mut renderables {
-                SkeletonRenderableKind::Combined(vec) => {
-                    let renderable = &mut vec[i];
-
+        let renderables = match drawer {
+            SpineDrawer::Combined => spine
+                .0
+                .combined_renderables()
+                .into_iter()
+                .map(|mut renderable| {
                     (
                         None,
                         renderable.attachment_renderer_object,
@@ -1045,10 +976,13 @@ fn spine_update_meshes(
                         renderable.blend_mode,
                         renderable.premultiplied_alpha,
                     )
-                }
-                SkeletonRenderableKind::Simple(vec) => {
-                    let renderable = &mut vec[i];
-
+                })
+                .collect::<Vec<_>>(),
+            SpineDrawer::Separated => spine
+                .0
+                .renderables()
+                .into_iter()
+                .map(|mut renderable| {
                     let colors = vec![
                         [
                             renderable.color.r,
@@ -1080,7 +1014,56 @@ fn spine_update_meshes(
                         renderable.blend_mode,
                         renderable.premultiplied_alpha,
                     )
-                }
+                })
+                .collect::<Vec<_>>(),
+            SpineDrawer::None => continue,
+        };
+
+        let mut children = children.iter();
+
+        for (
+            slot_index,
+            attachment_renderer_object,
+            vertices,
+            indices,
+            uvs,
+            colors,
+            dark_colors,
+            blend_mode,
+            premultiplied_alpha,
+        ) in renderables
+        {
+            let Some(child) = children.next() else { break };
+
+            #[cfg(all(feature = "2d", not(feature = "3d")))]
+            let Ok((
+                spine_mesh_entity, //
+                mut spine_mesh,
+                spine_2d_mesh,
+            )) = mesh_query.get_mut(child)
+            else {
+                continue;
+            };
+
+            #[cfg(all(feature = "3d", not(feature = "2d")))]
+            let Ok((
+                spine_mesh_entity, //
+                mut spine_mesh,
+                spine_3d_mesh,
+            )) = mesh_query.get_mut(child)
+            else {
+                continue;
+            };
+
+            #[cfg(all(feature = "2d", feature = "3d"))]
+            let Ok((
+                spine_mesh_entity, //
+                mut spine_mesh,
+                spine_2d_mesh,
+                spine_3d_mesh,
+            )) = mesh_query.get_mut(child)
+            else {
+                continue;
             };
 
             let Ok(mut entity_commands) = commands.get_entity(spine_mesh_entity) else { continue };
