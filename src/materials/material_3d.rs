@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use rusty_spine::BlendMode;
+use spine::BlendMode;
 
 #[cfg(feature = "2d")]
 use crate::SpineMeshType;

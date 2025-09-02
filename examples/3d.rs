@@ -23,7 +23,7 @@ impl Default for Orbit {
 }
 
 fn main() {
-    App::new()
+    App::new() // 3D example seems broken
         .add_plugins((DefaultPlugins, SpinePlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, (on_spawn.in_set(SpineSet::OnReady), controls))
