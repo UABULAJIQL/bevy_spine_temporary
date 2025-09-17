@@ -35,7 +35,7 @@ pub(crate) struct SpineTextures {
 /// An [`Event`] fired for each texture loaded by Spine.
 ///
 /// Sent in [`SpineSystem::Load`](`crate::SpineSystem::Load`).
-#[derive(Debug, Clone, BufferedEvent)]
+#[derive(Debug, Clone, Message)]
 pub struct SpineTextureCreateEvent {
     pub path: String,
     pub handle: Handle<Image>,
@@ -46,7 +46,7 @@ pub struct SpineTextureCreateEvent {
 /// An [`Event`] fired for each texture disposed, after [`SpineTextureCreateEvent`].
 ///
 /// Sent in [`SpineSystem::Load`](`crate::SpineSystem::Load`).
-#[derive(Debug, Clone, BufferedEvent)]
+#[derive(Debug, Clone, Message)]
 pub struct SpineTextureDisposeEvent {
     pub path: String,
     pub handle: Handle<Image>,
@@ -105,8 +105,8 @@ impl SpineTextures {
         &self,
         asset_server: &AssetServer,
         atlases: &Assets<Atlas>,
-        create_events: &mut EventWriter<SpineTextureCreateEvent>,
-        dispose_events: &mut EventWriter<SpineTextureDisposeEvent>,
+        create_events: &mut MessageWriter<SpineTextureCreateEvent>,
+        dispose_events: &mut MessageWriter<SpineTextureDisposeEvent>,
     ) {
         let mut data = self.data.lock().unwrap();
 

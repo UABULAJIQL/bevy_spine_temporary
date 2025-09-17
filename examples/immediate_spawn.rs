@@ -72,8 +72,8 @@ fn spawn(
 }
 
 fn on_spawn(
-    mut spine_ready_event: EventReader<SpineReadyEvent>,
-    mut app_exit: EventWriter<AppExit>,
+    mut spine_ready_event: MessageReader<SpineReadyEvent>,
+    mut app_exit: MessageWriter<AppExit>,
     spine_query: Query<&Spine>,
     frame_count: Res<FrameCount>,
 ) {

@@ -55,7 +55,7 @@ pub fn test_app_with_spineboy() -> App {
 
     app.add_systems(
         Update,
-        (move |mut spine_ready_events: EventReader<SpineReadyEvent>| {
+        (move |mut spine_ready_events: MessageReader<SpineReadyEvent>| {
             for _ in spine_ready_events.read() {
                 ready_inside.store(true, Ordering::SeqCst);
             }

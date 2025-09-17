@@ -25,7 +25,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerSpawnEvent>().add_systems(
+        app.add_message::<PlayerSpawnEvent>().add_systems(
             Update,
             (
                 player_spawn.in_set(PlayerSystem::Spawn),
@@ -51,7 +51,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-#[derive(BufferedEvent)]
+#[derive(Message)]
 pub struct PlayerSpawnEvent {
     pub skeleton: Handle<SkeletonData>,
 }
@@ -74,7 +74,7 @@ pub struct ShootController {
     bone: Entity,
 }
 
-fn player_spawn(mut commands: Commands, mut player_spawn_events: EventReader<PlayerSpawnEvent>) {
+fn player_spawn(mut commands: Commands, mut player_spawn_events: MessageReader<PlayerSpawnEvent>) {
     for event in player_spawn_events.read() {
         commands
             .spawn(SpineBundle {
@@ -91,7 +91,7 @@ fn player_spawn(mut commands: Commands, mut player_spawn_events: EventReader<Pla
 }
 
 fn player_spine_ready(
-    mut spine_ready_events: EventReader<SpineReadyEvent>,
+    mut spine_ready_events: MessageReader<SpineReadyEvent>,
     mut spine_query: Query<(&mut Spine, Entity), With<Player>>,
     mut spine_bone_query: Query<(&mut SpineBone, Entity)>,
     mut commands: Commands,
@@ -126,7 +126,7 @@ fn player_spine_ready(
 }
 
 fn player_spine_events(
-    mut spine_events: EventReader<SpineEvent>,
+    mut spine_events: MessageReader<SpineEvent>,
     mut spine_query: Query<(&mut Spine, &mut Player)>,
 ) {
     for event in spine_events.read() {
@@ -237,7 +237,7 @@ fn player_aim(
 fn player_shoot(
     mut shoot_query: Query<(&mut ShootController, &Player)>,
     mut spine_query: Query<(&mut Spine, &Transform)>,
-    mut bullet_spawn_events: EventWriter<BulletSpawnEvent>,
+    mut bullet_spawn_events: MessageWriter<BulletSpawnEvent>,
     global_transform_query: Query<&GlobalTransform>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     time: Res<Time>,

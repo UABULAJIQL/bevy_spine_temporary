@@ -79,7 +79,7 @@ fn setup(
 }
 
 fn on_spawn(
-    mut spine_ready_event: EventReader<SpineReadyEvent>,
+    mut spine_ready_event: MessageReader<SpineReadyEvent>,
     mut spine_query: Query<&mut Spine>,
 ) {
     for event in spine_ready_event.read() {
@@ -95,7 +95,7 @@ fn on_spawn(
 
 fn controls(
     mut cursor_options: Single<&mut CursorOptions, With<PrimaryWindow>>,
-    mut mouse_motion_events: EventReader<MouseMotion>,
+    mut mouse_motion_events: MessageReader<MouseMotion>,
     mut orbit_query: Query<(&mut Orbit, &mut Transform)>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,

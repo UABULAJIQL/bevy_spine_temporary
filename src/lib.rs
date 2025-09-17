@@ -200,8 +200,8 @@ impl Plugin for SpinePlugin {
             .init_resource::<SpineEventQueue>()
             .insert_resource(SpineTextures::init())
             .insert_resource(SpineReadyEvents::default())
-            .add_event::<SpineTextureCreateEvent>()
-            .add_event::<SpineTextureDisposeEvent>()
+            .add_message::<SpineTextureCreateEvent>()
+            .add_message::<SpineTextureDisposeEvent>()
             .init_asset::<Atlas>()
             .init_asset::<SkeletonJson>()
             .init_asset::<SkeletonBinary>()
@@ -209,8 +209,8 @@ impl Plugin for SpinePlugin {
             .init_asset_loader::<AtlasLoader>()
             .init_asset_loader::<SkeletonJsonLoader>()
             .init_asset_loader::<SkeletonBinaryLoader>()
-            .add_event::<SpineReadyEvent>()
-            .add_event::<SpineEvent>()
+            .add_message::<SpineReadyEvent>()
+            .add_message::<SpineEvent>()
             .add_systems(
                 Update,
                 (
@@ -520,7 +520,7 @@ pub struct SpineBundle {
 ///
 /// For convenience, systems receiving this event can be added to the [`SpineSet::OnReady`] set to
 /// receive this after events are sent, but before the first [`SkeletonController`] update.
-#[derive(Debug, Clone, BufferedEvent)]
+#[derive(Debug, Clone, Message)]
 pub struct SpineReadyEvent {
     /// The entity containing the [`Spine`] component.
     pub entity: Entity,
@@ -549,7 +549,7 @@ pub struct SpineReadyEvent {
 ///     }
 /// }
 /// ```
-#[derive(Debug, Clone, BufferedEvent)]
+#[derive(Debug, Clone, Message)]
 pub enum SpineEvent {
     Start {
         entity: Entity,
@@ -589,8 +589,8 @@ struct SpineReadyEvents(Vec<SpineReadyEvent>);
 #[allow(clippy::too_many_arguments)]
 fn spine_load(
     mut skeleton_data_assets: ResMut<Assets<SkeletonData>>,
-    mut texture_create_events: EventWriter<SpineTextureCreateEvent>,
-    mut texture_dispose_events: EventWriter<SpineTextureDisposeEvent>,
+    mut texture_create_events: MessageWriter<SpineTextureCreateEvent>,
+    mut texture_dispose_events: MessageWriter<SpineTextureDisposeEvent>,
     atlases: Res<Assets<Atlas>>,
     jsons: Res<Assets<SkeletonJson>>,
     binaries: Res<Assets<SkeletonBinary>>,
@@ -896,7 +896,7 @@ fn spawn_bones(
 
 fn spine_ready(
     mut ready_events: ResMut<SpineReadyEvents>,
-    mut ready_writer: EventWriter<SpineReadyEvent>,
+    mut ready_writer: MessageWriter<SpineReadyEvent>,
 ) {
     for event in mem::take(&mut ready_events.0) {
         ready_writer.write(event);
@@ -905,7 +905,7 @@ fn spine_ready(
 
 fn spine_update_animation(
     mut spine_query: Query<(Entity, &mut Spine)>,
-    mut spine_events: EventWriter<SpineEvent>,
+    mut spine_events: MessageWriter<SpineEvent>,
     time: Res<Time>,
     spine_event_queue: Res<SpineEventQueue>,
 ) {
@@ -1259,7 +1259,7 @@ struct FixSpineTextures {
 /// Adjusts Spine textures to render properly.
 fn adjust_spine_textures(
     mut local: Local<FixSpineTextures>,
-    mut spine_texture_create_events: EventReader<SpineTextureCreateEvent>,
+    mut spine_texture_create_events: MessageReader<SpineTextureCreateEvent>,
     mut images: ResMut<Assets<Image>>,
 ) {
     for spine_texture_create_event in spine_texture_create_events.read() {

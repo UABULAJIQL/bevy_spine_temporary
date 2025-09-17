@@ -14,7 +14,7 @@ fn main() {
 fn setup(
     mut commands: Commands,
     mut skeletons: ResMut<Assets<SkeletonData>>,
-    mut player_spawn_events: EventWriter<PlayerSpawnEvent>,
+    mut player_spawn_events: MessageWriter<PlayerSpawnEvent>,
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn(Camera2d);
