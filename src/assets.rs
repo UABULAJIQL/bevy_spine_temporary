@@ -2,18 +2,16 @@ use std::sync::Arc;
 
 use bevy::prelude::*;
 
-use bevy::asset::{AssetLoader, LoadContext, io::Reader};
+use bevy::asset::{ AssetLoader, LoadContext, io::Reader };
 use bevy::reflect::TypePath;
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 use spine::SpineError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum SpineLoaderError {
-    #[error("Could load file: {0}")]
-    Io(#[from] std::io::Error),
-    #[error("Spine error: {0}")]
-    Spine(#[from] SpineError),
+    #[error("Could load file: {0}")] Io(#[from] std::io::Error),
+    #[error("Spine error: {0}")] Spine(#[from] SpineError),
 }
 
 /// Bevy asset for [`spine::Atlas`], loaded from `.atlas` files.
@@ -48,21 +46,23 @@ impl AssetLoader for AtlasLoader {
         &self,
         reader: &mut dyn Reader,
         settings: &Self::Settings,
-        load_context: &mut LoadContext<'_>,
+        load_context: &mut LoadContext<'_>
     ) -> Result<Self::Asset, Self::Error> {
         let mut data = Vec::new();
 
         reader.read_to_end(&mut data).await?;
 
         Ok(Atlas {
-            atlas: Arc::new(spine::Atlas::new(
-                &data,
-                load_context
-                    .asset_path()
-                    .parent()
-                    .map(|path| path.to_string())
-                    .unwrap_or_default(),
-            )?),
+            atlas: Arc::new(
+                spine::Atlas::new(
+                    &data,
+                    load_context
+                        .path()
+                        .parent()
+                        .map(|path| path.to_string())
+                        .unwrap_or_default()
+                )?
+            ),
             premultiplied_alpha: settings.premultiplied_alpha,
         })
     }
@@ -92,7 +92,7 @@ impl AssetLoader for SkeletonJsonLoader {
         &self,
         reader: &mut dyn Reader,
         _: &Self::Settings,
-        _: &mut LoadContext<'_>,
+        _: &mut LoadContext<'_>
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
@@ -126,7 +126,7 @@ impl AssetLoader for SkeletonBinaryLoader {
         &self,
         reader: &mut dyn Reader,
         _: &Self::Settings,
-        _: &mut LoadContext<'_>,
+        _: &mut LoadContext<'_>
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
